@@ -68,7 +68,7 @@ export default async function OpportunityDetailPage({ params }: { params: Promis
             <ArrowLeft className="size-3.5" />
             Opportunities
           </Link>
-          <h1 className="text-2xl font-semibold tracking-tight">
+          <h1 className="font-heading text-2xl font-semibold tracking-tight">
             {opportunity.title} — {opportunity.companyName}
           </h1>
           {opportunity.sourceUrl && (

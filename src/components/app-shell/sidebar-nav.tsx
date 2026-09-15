@@ -41,7 +41,7 @@ export function SidebarNav({ className }: { className?: string }) {
             className={cn(
               "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
               active
-                ? "bg-secondary text-secondary-foreground"
+                ? "bg-primary/10 text-primary"
                 : "text-muted-foreground hover:bg-secondary/60 hover:text-foreground"
             )}
           >

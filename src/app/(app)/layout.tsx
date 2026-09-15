@@ -6,9 +6,14 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const user = await requireCurrentUser()
 
   return (
-    <div className="flex min-h-svh flex-1">
-      <aside className="hidden w-64 shrink-0 border-r px-4 py-6 md:flex md:flex-col">
-        <div className="mb-6 px-3 text-sm font-semibold">Career Evidence OS</div>
+    <div className="flex min-h-svh flex-1 bg-background">
+      <aside className="hidden w-64 shrink-0 border-r border-sidebar-border bg-sidebar px-4 py-6 md:flex md:flex-col">
+        <div className="mb-6 flex items-center gap-2 px-3">
+          <span className="size-2 shrink-0 rounded-full bg-primary" aria-hidden />
+          <span className="font-heading text-sm font-semibold text-sidebar-foreground">
+            Career Evidence OS
+          </span>
+        </div>
         <SidebarNav />
       </aside>
       <div className="flex min-w-0 flex-1 flex-col">

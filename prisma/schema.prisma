@@ -1,0 +1,888 @@
+// Career Evidence OS — Prisma schema
+// Postgres (Supabase project shared with another app — see the datasource comment below
+// for why everything here lives in the "career_os" schema). `User.id` mirrors
+// `auth.users.id` (uuid), populated by a DB trigger — see supabase/sql/001_auth_sync_and_rls.sql.
+// Prisma connects with a privileged role and does NOT evaluate RLS as the end user, so every
+// query in the app layer MUST scope by userId itself (see lib/db/with-ownership.ts). RLS is
+// still enabled on every table below as defense-in-depth.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// This Supabase project also hosts an unrelated app in the "public" schema — Career
+// Evidence OS lives entirely in its own "career_os" schema so the two never collide.
+// Supabase Auth (auth.users) is shared between the two apps; see the trigger in
+// supabase/sql/001_auth_sync_and_rls.sql.
+datasource db {
+  provider = "postgresql"
+  schemas  = ["career_os"]
+}
+
+// ---------- Enums ----------
+
+enum Locale {
+  ru
+  en
+  es
+  @@schema("career_os")
+}
+
+enum EmploymentFormat {
+  permanent
+  contract
+  project
+  fractional
+  advisory
+  @@schema("career_os")
+}
+
+enum WorkMode {
+  onsite
+  hybrid
+  remote
+  @@schema("career_os")
+}
+
+enum VerificationStatus {
+  unverified
+  verified
+  rejected
+  edited
+  @@schema("career_os")
+}
+
+enum ConfidenceLevel {
+  low
+  medium
+  high
+  @@schema("career_os")
+}
+
+enum EvidenceSourceType {
+  resume_import
+  manual_entry
+  interview_note
+  ai_suggested
+  @@schema("career_os")
+}
+
+enum OpportunityType {
+  vacancy
+  project
+  fractional
+  advisory
+  proactive_lead
+  @@schema("career_os")
+}
+
+enum OpportunitySource {
+  url
+  pasted_text
+  manual
+  @@schema("career_os")
+}
+
+enum OpportunityStatus {
+  saved
+  researching
+  ready_to_apply
+  applied
+  recruiter_screen
+  hiring_manager
+  case_test_task
+  final_interview
+  offer
+  rejected
+  withdrawn
+  paused
+  @@schema("career_os")
+}
+
+enum RequirementCategory {
+  responsibility
+  skill
+  tool
+  qualification
+  industry_experience
+  logistics
+  other
+  @@schema("career_os")
+}
+
+enum RequirementImportance {
+  must_have
+  nice_to_have
+  inferred_context
+  @@schema("career_os")
+}
+
+enum ResumeChangeType {
+  add
+  remove
+  rewrite
+  reorder
+  @@schema("career_os")
+}
+
+enum ResumeChangeStatus {
+  proposed
+  accepted
+  rejected
+  edited
+  @@schema("career_os")
+}
+
+enum ResumeVersionStatus {
+  draft
+  final
+  archived
+  @@schema("career_os")
+}
+
+enum FitDimensionStatus {
+  strong
+  partial
+  gap
+  unknown
+  @@schema("career_os")
+}
+
+enum FitOverallLabel {
+  strong_fit
+  partial_fit
+  weak_fit
+  unknown
+  @@schema("career_os")
+}
+
+enum FitDimension {
+  role_fit
+  industry_fit
+  business_problem_fit
+  leadership_scale_fit
+  skills_tools_fit
+  employment_format_fit
+  logistics_fit
+  evidence_strength_fit
+  motivation_risk_fit
+  freshness_fit
+  @@schema("career_os")
+}
+
+enum ApplicationChannel {
+  direct_apply
+  referral
+  recruiter_outreach
+  inbound
+  other
+  @@schema("career_os")
+}
+
+enum RelationshipType {
+  recruiter
+  hiring_manager
+  referral
+  former_colleague
+  consultant
+  other
+  @@schema("career_os")
+}
+
+enum InterviewType {
+  recruiter_screen
+  hiring_manager
+  panel
+  case_test_task
+  final_round
+  reference_check
+  other
+  @@schema("career_os")
+}
+
+enum TaskStatus {
+  open
+  in_progress
+  done
+  cancelled
+  @@schema("career_os")
+}
+
+enum TaskPriority {
+  low
+  medium
+  high
+  @@schema("career_os")
+}
+
+enum DocumentType {
+  resume_import
+  cover_letter
+  other
+  @@schema("career_os")
+}
+
+enum ExtractionStatus {
+  pending
+  success
+  partial
+  failed
+  @@schema("career_os")
+}
+
+enum AiRunType {
+  experience_extraction
+  opportunity_parse
+  evidence_quality_suggestion
+  positioning_draft
+  fit_assessment
+  resume_proposal
+  outreach_draft
+  interview_learning
+  @@schema("career_os")
+}
+
+enum AiRunStatus {
+  pending
+  success
+  failed
+  @@schema("career_os")
+}
+
+enum CreditTransactionReason {
+  ai_run_debit
+  signup_bonus
+  manual_grant
+  refund
+  @@schema("career_os")
+}
+
+enum AiFeedbackTargetType {
+  ai_run
+  experience
+  evidence
+  opportunity_requirement
+  resume_change_proposal
+  fit_assessment_dimension
+  interview_learning
+  @@schema("career_os")
+}
+
+enum AiFeedbackStatus {
+  open
+  reviewed
+  dismissed
+  @@schema("career_os")
+}
+
+// ---------- Core identity ----------
+
+model User {
+  id          String   @id @default(uuid()) @db.Uuid
+  email       String   @unique
+  displayName String?
+  locale      Locale   @default(ru)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  profile            CandidateProfile?
+  careerTracks       CareerTrack[]
+  experiences        Experience[]
+  evidence           Evidence[]
+  skills             Skill[]
+  resumes            Resume[]
+  resumeVersions     ResumeVersion[]
+  opportunities      Opportunity[]
+  fitAssessments     FitAssessment[]
+  applications       Application[]
+  contacts           Contact[]
+  interviews         Interview[]
+  tasks              Task[]
+  documents          Document[]
+  aiRuns             AiRun[]
+  aiFeedbackReports  AiFeedbackReport[]
+  creditAccount      CreditAccount?
+  creditTransactions CreditTransaction[]
+
+  @@map("users")
+  @@schema("career_os")
+}
+
+model CandidateProfile {
+  id       String @id @default(cuid())
+  userId   String @unique @db.Uuid
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  headline             String?
+  location              String?
+  phone                 String?
+  websiteUrl            String?
+  linkedinUrl           String?
+  preferredLanguages    Locale[]
+
+  preferredFormats      EmploymentFormat[]
+  targetLocations       String[]
+  targetWorkModes       WorkMode[]
+
+  compensationMin        Int?
+  compensationMax        Int?
+  compensationCurrency   String?
+
+  preferredIndustries    String[]
+  preferredCompanyTypes  String[]
+  preferredCompanySizes  String[]
+  preferredCompanyStages String[]
+
+  openToLowerLevelIfScopeFits Boolean @default(false)
+  nonNegotiables               String?
+  currentSituation              String?
+  careerChangeReason            String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("candidate_profiles")
+  @@schema("career_os")
+}
+
+// ---------- Career tracks ----------
+
+model CareerTrack {
+  id     String @id @default(cuid())
+  userId String @db.Uuid
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  title               String
+  alternativeTitles    String[]
+  employmentFormats    EmploymentFormat[]
+  targetIndustries     String[]
+  targetCompanyTypes   String[]
+  targetCompanyStages  String[]
+  targetCompanySizes   String[]
+  businessProblems     String[]
+  mustHaveSkills       String[]
+  deemphasizedExperience String?
+
+  valueProposition    String?
+  motivationStatement String?
+
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  evidence        Evidence[]
+  resumes         Resume[]
+  fitAssessments  FitAssessment[]
+
+  @@index([userId])
+  @@map("career_tracks")
+  @@schema("career_os")
+}
+
+// ---------- Experience & evidence ----------
+
+model Experience {
+  id     String @id @default(cuid())
+  userId String @db.Uuid
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  companyName     String
+  companyIndustry String?
+  title           String
+  employmentType  EmploymentFormat?
+  startDate       DateTime?
+  endDate         DateTime?
+  isCurrent       Boolean  @default(false)
+  location        String?
+  description     String?
+  responsibilities String[]
+
+  teamSize          Int?
+  budgetDescription String?
+  pAndLDescription  String?
+  geographies       String[]
+  clientTypes       String[]
+
+  sourceDocumentId  String?
+  sourceDocument    Document? @relation(fields: [sourceDocumentId], references: [id])
+
+  verificationStatus VerificationStatus @default(unverified)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  evidence Evidence[]
+
+  @@index([userId])
+  @@map("experiences")
+  @@schema("career_os")
+}
+
+model Evidence {
+  id     String @id @default(cuid())
+  userId String @db.Uuid
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  careerTrackId String?
+  careerTrack   CareerTrack? @relation(fields: [careerTrackId], references: [id])
+  experienceId  String?
+  experience    Experience?  @relation(fields: [experienceId], references: [id])
+
+  title  String
+  situation String?
+  task      String?
+  action    String?
+  result    String?
+
+  metricValue       Float?
+  metricUnit        String?
+  metricDescription String?
+
+  timeframe         String?
+  scaleDescription  String?
+  teamSize          Int?
+  budgetDescription String?
+  pAndLDescription  String?
+
+  industries String[]
+  skills     String[]
+
+  sourceType      EvidenceSourceType @default(manual_entry)
+  sourceReference String?
+
+  verificationStatus VerificationStatus @default(unverified)
+  confidenceLevel    ConfidenceLevel    @default(medium)
+  qualityScore       Int?
+  qualityExplanation String?
+
+  isReusableInResume   Boolean @default(true)
+  isReusableInInterview Boolean @default(true)
+  isReusableInOutreach  Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([careerTrackId])
+  @@map("evidence")
+  @@schema("career_os")
+}
+
+model Skill {
+  id     String @id @default(cuid())
+  userId String @db.Uuid
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  name        String
+  category    String?
+  proficiency String?
+  lastUsedAt  DateTime?
+  evidenceOfUse String?
+
+  verificationStatus VerificationStatus @default(unverified)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@map("skills")
+  @@schema("career_os")
+}
+
+// ---------- Resumes ----------
+
+model Resume {
+  id     String @id @default(cuid())
+  userId String @db.Uuid
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  careerTrackId String?
+  careerTrack   CareerTrack? @relation(fields: [careerTrackId], references: [id])
+
+  name              String
+  language          Locale
+  isBase            Boolean @default(true)
+  structuredContent Json
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  versions ResumeVersion[]
+
+  @@index([userId])
+  @@map("resumes")
+  @@schema("career_os")
+}
+
+model ResumeVersion {
+  id     String @id @default(cuid())
+  userId String @db.Uuid
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  resumeId      String
+  resume        Resume       @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+  opportunityId String?
+  opportunity   Opportunity? @relation(fields: [opportunityId], references: [id])
+
+  name              String
+  language          Locale
+  structuredContent Json
+  status            ResumeVersionStatus @default(draft)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  changeProposals ResumeChangeProposal[]
+  applications    Application[]
+  fitAssessments  FitAssessment[]
+
+  @@index([userId])
+  @@index([resumeId])
+  @@index([opportunityId])
+  @@map("resume_versions")
+  @@schema("career_os")
+}
+
+model ResumeChangeProposal {
+  id              String        @id @default(cuid())
+  resumeVersionId String
+  resumeVersion   ResumeVersion @relation(fields: [resumeVersionId], references: [id], onDelete: Cascade)
+
+  section               String
+  originalText          String?
+  proposedText          String
+  rationale             String
+  evidenceIds           Json
+  relatedRequirementIds Json
+  changeType            ResumeChangeType
+  status                ResumeChangeStatus @default(proposed)
+  finalText             String?
+
+  aiRunId String?
+  aiRun   AiRun?  @relation(fields: [aiRunId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([resumeVersionId])
+  @@map("resume_change_proposals")
+  @@schema("career_os")
+}
+
+// ---------- Opportunities ----------
+
+model Opportunity {
+  id     String @id @default(cuid())
+  userId String @db.Uuid
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  type       OpportunityType
+  companyName String
+  title      String
+  sourceName OpportunitySource @default(manual)
+  sourceUrl  String?
+  discoveredAt DateTime @default(now())
+
+  location         String?
+  workMode         WorkMode?
+  employmentFormat EmploymentFormat?
+
+  compensationMin      Int?
+  compensationMax      Int?
+  compensationCurrency String?
+
+  rawDescription        String?
+  structuredDescription Json?
+
+  status         OpportunityStatus @default(saved)
+  priority       TaskPriority      @default(medium)
+  nextAction     String?
+  nextActionDueAt DateTime?
+  followUpAt     DateTime?
+  deadlineAt     DateTime?
+  notes          String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  requirements    OpportunityRequirement[]
+  fitAssessments  FitAssessment[]
+  applications    Application[]
+  interviews      Interview[]
+  tasks           Task[]
+  resumeVersions  ResumeVersion[]
+
+  @@index([userId])
+  @@index([status])
+  @@map("opportunities")
+  @@schema("career_os")
+}
+
+model OpportunityRequirement {
+  id            String      @id @default(cuid())
+  opportunityId String
+  opportunity   Opportunity @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+
+  category         RequirementCategory
+  text             String
+  importance       RequirementImportance
+  normalizedSkill  String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([opportunityId])
+  @@map("opportunity_requirements")
+  @@schema("career_os")
+}
+
+// ---------- Fit assessment ----------
+
+model FitAssessment {
+  id     String @id @default(cuid())
+  userId String @db.Uuid
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  opportunityId String
+  opportunity   Opportunity @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+  careerTrackId String
+  careerTrack   CareerTrack @relation(fields: [careerTrackId], references: [id])
+  resumeVersionId String?
+  resumeVersion   ResumeVersion? @relation(fields: [resumeVersionId], references: [id])
+
+  overallLabel FitOverallLabel
+  overallScore Int?
+
+  // Per-dimension results, each: { dimension, status, summary, evidenceIds[], requirementIds[], recommendedAction }
+  dimensionResults Json
+
+  gaps               Json
+  questions          Json
+  recommendedActions Json
+
+  aiRunId String?
+  aiRun   AiRun?  @relation(fields: [aiRunId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([opportunityId])
+  @@map("fit_assessments")
+  @@schema("career_os")
+}
+
+// ---------- Pipeline ----------
+
+model Application {
+  id     String @id @default(cuid())
+  userId String @db.Uuid
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  opportunityId   String
+  opportunity     Opportunity    @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+  resumeVersionId String?
+  resumeVersion   ResumeVersion? @relation(fields: [resumeVersionId], references: [id])
+  contactId       String?
+  contact         Contact?       @relation(fields: [contactId], references: [id])
+
+  appliedAt     DateTime?
+  channel       ApplicationChannel @default(direct_apply)
+  messageDraft  String?
+  messageFinal  String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([opportunityId])
+  @@map("applications")
+  @@schema("career_os")
+}
+
+model Contact {
+  id     String @id @default(cuid())
+  userId String @db.Uuid
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  name             String
+  company          String?
+  title            String?
+  email            String?
+  linkedinUrl      String?
+  relationshipType RelationshipType @default(other)
+  notes            String?
+  lastContactAt    DateTime?
+  nextFollowUpAt   DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  applications Application[]
+
+  @@index([userId])
+  @@map("contacts")
+  @@schema("career_os")
+}
+
+model Interview {
+  id     String @id @default(cuid())
+  userId String @db.Uuid
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  opportunityId String
+  opportunity   Opportunity @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+
+  date             DateTime
+  stage            InterviewType
+  interviewerName  String?
+  interviewerTitle String?
+  questions        Json?
+  notes            String?
+  feedback         String?
+  interestSignals  String?
+  objections       String?
+  agreements       String?
+  nextStep         String?
+  nextStepAt       DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([opportunityId])
+  @@map("interviews")
+  @@schema("career_os")
+}
+
+model Task {
+  id     String @id @default(cuid())
+  userId String @db.Uuid
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  opportunityId String?
+  opportunity   Opportunity? @relation(fields: [opportunityId], references: [id])
+
+  title       String
+  description String?
+  dueAt       DateTime?
+  status      TaskStatus   @default(open)
+  priority    TaskPriority @default(medium)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([opportunityId])
+  @@map("tasks")
+  @@schema("career_os")
+}
+
+// ---------- Documents ----------
+
+model Document {
+  id     String @id @default(cuid())
+  userId String @db.Uuid
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  storagePath      String
+  originalFilename String
+  mimeType         String
+  sizeBytes        Int
+  documentType     DocumentType
+  extractionStatus ExtractionStatus @default(pending)
+  extractedText    String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  experiences Experience[]
+
+  @@index([userId])
+  @@map("documents")
+  @@schema("career_os")
+}
+
+// ---------- AI infrastructure ----------
+
+model AiRun {
+  id     String @id @default(cuid())
+  userId String @db.Uuid
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  type            AiRunType
+  inputEntityIds  Json
+  inputHash       String
+  provider        String
+  model           String
+  promptVersion   String
+  status          AiRunStatus @default(pending)
+  output          Json?
+  errorMessage    String?
+
+  createdAt   DateTime  @default(now())
+  completedAt DateTime?
+
+  resumeChangeProposals ResumeChangeProposal[]
+  fitAssessments        FitAssessment[]
+  creditTransactions    CreditTransaction[]
+  feedbackReports       AiFeedbackReport[]
+
+  @@index([userId])
+  @@index([type])
+  @@map("ai_runs")
+  @@schema("career_os")
+}
+
+model AiFeedbackReport {
+  id     String @id @default(cuid())
+  userId String @db.Uuid
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  aiRunId    String?
+  aiRun      AiRun?  @relation(fields: [aiRunId], references: [id])
+  targetType AiFeedbackTargetType
+  targetId   String?
+
+  comment String?
+  status  AiFeedbackStatus @default(open)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([aiRunId])
+  @@map("ai_feedback_reports")
+  @@schema("career_os")
+}
+
+// ---------- Credits ----------
+
+model CreditAccount {
+  id      String @id @default(cuid())
+  userId  String @unique @db.Uuid
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  balance Int    @default(0)
+
+  updatedAt DateTime @updatedAt
+
+  @@map("credit_accounts")
+  @@schema("career_os")
+}
+
+model CreditTransaction {
+  id     String @id @default(cuid())
+  userId String @db.Uuid
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  amount Int
+  reason CreditTransactionReason
+  aiRunId String?
+  aiRun   AiRun?  @relation(fields: [aiRunId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@map("credit_transactions")
+  @@schema("career_os")
+}

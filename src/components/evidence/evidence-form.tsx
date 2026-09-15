@@ -84,7 +84,11 @@ export function EvidenceForm({
                 <Select value={field.value ?? undefined} onValueChange={field.onChange}>
                   <FormControl>
                     <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Не привязано" />
+                      <SelectValue placeholder="Не привязано">
+                        {(value: string | null) =>
+                          careerTrackOptions.find((opt) => opt.id === value)?.label ?? "Не привязано"
+                        }
+                      </SelectValue>
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
@@ -107,7 +111,11 @@ export function EvidenceForm({
                 <Select value={field.value ?? undefined} onValueChange={field.onChange}>
                   <FormControl>
                     <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Не привязано" />
+                      <SelectValue placeholder="Не привязано">
+                        {(value: string | null) =>
+                          experienceOptions.find((opt) => opt.id === value)?.label ?? "Не привязано"
+                        }
+                      </SelectValue>
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>

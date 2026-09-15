@@ -115,7 +115,9 @@ export function ExperienceForm({
                 <Select value={field.value ?? undefined} onValueChange={field.onChange}>
                   <FormControl>
                     <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Не указано" />
+                      <SelectValue placeholder="Не указано">
+                        {(value: string | null) => (value ? EMPLOYMENT_FORMAT_LABELS[value] : "Не указано")}
+                      </SelectValue>
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>

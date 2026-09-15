@@ -2,6 +2,7 @@ import { requireCurrentUser } from "@/lib/auth/session"
 import { getDashboardSummary, getOnboardingProgress } from "@/lib/queries/dashboard"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { OnboardingChecklist } from "@/components/dashboard/onboarding-checklist"
+import { OPPORTUNITY_STATUS_LABELS } from "@/lib/opportunities/labels"
 
 const WIDGETS = [
   {
@@ -69,7 +70,7 @@ export default async function DashboardPage() {
             <ul className="grid gap-2 text-sm sm:grid-cols-2">
               {summary.applicationsByStage.map((row) => (
                 <li key={row.status} className="flex items-center justify-between rounded-md border px-3 py-2">
-                  <span className="text-muted-foreground">{row.status}</span>
+                  <span className="text-muted-foreground">{OPPORTUNITY_STATUS_LABELS[row.status]}</span>
                   <span className="font-medium">{row._count._all}</span>
                 </li>
               ))}

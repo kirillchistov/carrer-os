@@ -72,7 +72,11 @@ export function CreateResumeDialog({ careerTrackOptions }: { careerTrackOptions:
             <Label>Карьерный трек</Label>
             <Select value={careerTrackId} onValueChange={(value) => setCareerTrackId(value ?? undefined)}>
               <SelectTrigger className="w-full">
-                <SelectValue placeholder="Не привязано" />
+                <SelectValue placeholder="Не привязано">
+                  {(value: string | null) =>
+                    careerTrackOptions.find((opt) => opt.id === value)?.label ?? "Не привязано"
+                  }
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {careerTrackOptions.map((opt) => (

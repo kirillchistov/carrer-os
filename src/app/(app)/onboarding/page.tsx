@@ -1,11 +1,20 @@
-import { ComingSoonSection } from "@/components/app-shell/coming-soon"
+import { getMyProfile } from "@/lib/actions/profile"
+import { listMyExperiences } from "@/lib/actions/experience"
+import { OnboardingWizard } from "@/components/onboarding/onboarding-wizard"
+import { toProfileFormValues } from "@/lib/validation/profile"
 
-export default function OnboardingPage() {
+export default async function OnboardingPage() {
+  const [profile, experiences] = await Promise.all([getMyProfile(), listMyExperiences()])
+
   return (
-    <ComingSoonSection
-      title="Онбординг"
-      description="Короткий визард: профиль, импорт опыта, первый карьерный трек."
-      phaseNote="Визард онбординга появится на следующем этапе разработки (Phase 2). Пока перейдите на Dashboard."
-    />
+    <div className="flex flex-col gap-6">
+      <div>
+        <h1 className="text-2xl font-semibold tracking-tight">Онбординг</h1>
+        <p className="text-sm text-muted-foreground">
+          Три коротких шага: профиль, импорт опыта, первый карьерный трек.
+        </p>
+      </div>
+      <OnboardingWizard initialProfileValues={toProfileFormValues(profile)} initialExperiences={experiences} />
+    </div>
   )
 }

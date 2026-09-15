@@ -21,8 +21,9 @@
 
 -- ---------- Identity bridge ----------
 -- Mirrors every new Supabase auth user into career_os.users so Prisma can model User as
--- a normal foreign-key target without owning the `auth` schema itself.
-
+-- a normal foreign-key target without owning the `auth` schema itself. Also opens a
+-- CreditAccount with a starting balance so the AI features work immediately — this is a
+-- free-trial allotment, not "unlimited AI access" (see docs/product-plan.md, "Credits").
 create or replace function career_os.handle_new_auth_user()
 returns trigger
 language plpgsql
@@ -33,6 +34,11 @@ begin
   insert into career_os.users (id, email, "displayName", locale, "createdAt", "updatedAt")
   values (new.id, new.email, null, 'ru', now(), now())
   on conflict (id) do nothing;
+
+  insert into career_os.credit_accounts (id, "userId", balance, "updatedAt")
+  values (gen_random_uuid()::text, new.id, 20, now())
+  on conflict ("userId") do nothing;
+
   return new;
 end;
 $$;

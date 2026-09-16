@@ -6,8 +6,11 @@ import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { SidebarNav } from "@/components/app-shell/sidebar-nav"
 import { signOut } from "@/lib/actions/auth"
+import { Badge } from "@/components/ui/badge"
+import { Sparkles } from "lucide-react"
+import Link from "next/link"
 
-export function Topbar({ userEmail }: { userEmail: string }) {
+export function Topbar({ userEmail, creditBalance }: { userEmail: string; creditBalance: number | null }) {
   const [open, setOpen] = useState(false)
 
   return (
@@ -31,6 +34,14 @@ export function Topbar({ userEmail }: { userEmail: string }) {
       </div>
 
       <div className="flex items-center gap-3">
+        {creditBalance !== null && (
+          <Link href="/settings">
+            <Badge variant="outline" className="gap-1 font-normal text-muted-foreground">
+              <Sparkles className="size-3" />
+              {creditBalance}
+            </Badge>
+          </Link>
+        )}
         <span className="hidden text-sm text-muted-foreground sm:inline">{userEmail}</span>
         <form action={signOut}>
           <Button type="submit" variant="ghost" size="sm">

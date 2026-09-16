@@ -1,13 +1,16 @@
 import { notFound } from "next/navigation"
 import Link from "next/link"
-import { ArrowLeft } from "lucide-react"
+import { ArrowLeft, Sparkles } from "lucide-react"
 import { getOpportunity } from "@/lib/actions/opportunities"
 import { listOpportunityTasks } from "@/lib/actions/tasks"
 import { NotFoundError } from "@/lib/errors"
 import { OpportunityDetailForm } from "@/components/opportunities/opportunity-detail-form"
 import { RequirementsEditor } from "@/components/opportunities/requirements-editor"
 import { OpportunityTasks } from "@/components/opportunities/opportunity-tasks"
+import { OutreachDraftCard } from "@/components/opportunities/outreach-draft-card"
 import { DeleteOpportunityButton } from "@/components/opportunities/delete-opportunity-button"
+import { Button } from "@/components/ui/button"
+import { getMyApplication } from "@/lib/actions/outreach"
 import type { OpportunityFormValues, RequirementFormValues } from "@/lib/validation/opportunity"
 
 function toIso(date: Date | null): string | null {
@@ -25,7 +28,7 @@ export default async function OpportunityDetailPage({ params }: { params: Promis
     throw error
   }
 
-  const tasks = await listOpportunityTasks(id)
+  const [tasks, application] = await Promise.all([listOpportunityTasks(id), getMyApplication(id)])
   const { opportunity, requirements } = data
 
   const defaultValues: OpportunityFormValues = {
@@ -82,7 +85,13 @@ export default async function OpportunityDetailPage({ params }: { params: Promis
             </a>
           )}
         </div>
-        <DeleteOpportunityButton opportunityId={id} />
+        <div className="flex items-center gap-2">
+          <Button render={<Link href={`/opportunities/${id}/fit`} />} nativeButton={false} variant="outline">
+            <Sparkles className="size-4" />
+            Fit Report
+          </Button>
+          <DeleteOpportunityButton opportunityId={id} />
+        </div>
       </div>
 
       <OpportunityDetailForm
@@ -91,6 +100,7 @@ export default async function OpportunityDetailPage({ params }: { params: Promis
         rawDescription={opportunity.rawDescription}
       />
       <RequirementsEditor opportunityId={id} initialRequirements={requirementValues} />
+      <OutreachDraftCard key={application?.id ?? "none"} opportunityId={id} initialApplication={application} />
       <OpportunityTasks opportunityId={id} tasks={tasks} />
     </div>
   )

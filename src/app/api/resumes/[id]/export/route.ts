@@ -6,6 +6,7 @@ import { resumeContentSchema, emptyResumeContent } from "@/lib/validation/resume
 import { buildResumeDocx } from "@/lib/resumes/build-docx"
 import { buildResumePdf } from "@/lib/resumes/build-pdf"
 import { track } from "@/lib/analytics/track"
+import { contentDispositionAttachment } from "@/lib/http/content-disposition"
 
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -23,7 +24,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     return new NextResponse(new Uint8Array(bytes), {
       headers: {
         "Content-Type": "application/pdf",
-        "Content-Disposition": `attachment; filename="${sanitizeFilename(resume.name)}.pdf"`,
+        "Content-Disposition": contentDispositionAttachment(resume.name, "pdf"),
       },
     })
   }
@@ -32,11 +33,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
   return new NextResponse(new Uint8Array(buffer), {
     headers: {
       "Content-Type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-      "Content-Disposition": `attachment; filename="${sanitizeFilename(resume.name)}.docx"`,
+      "Content-Disposition": contentDispositionAttachment(resume.name, "docx"),
     },
   })
-}
-
-function sanitizeFilename(name: string): string {
-  return name.replace(/[^\p{L}\p{N}\-_. ]/gu, "_").slice(0, 100) || "resume"
 }

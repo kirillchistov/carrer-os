@@ -1,7 +1,25 @@
 import Link from "next/link"
-import { FileCheck2, ShieldCheck, Waypoints } from "lucide-react"
+import { FileCheck2, ShieldCheck, Waypoints, Upload, FileSearch, Sparkles } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+
+const quickStartSteps = [
+  {
+    icon: Upload,
+    title: "1. Загрузите резюме",
+    description: "Вставьте текст или загрузите .docx — без регистрации данных, без предварительной настройки профиля.",
+  },
+  {
+    icon: FileSearch,
+    title: "2. Добавьте 1–3 вакансии",
+    description: "Вставьте текст описаний вакансий, на которые откликаетесь или присматриваетесь.",
+  },
+  {
+    icon: Sparkles,
+    title: "3. Получите результат",
+    description: "Адаптированные версии резюме с комментариями, что и почему изменено, плюс сопроводительные письма.",
+  },
+]
 
 const pillars = [
   {
@@ -53,6 +71,34 @@ export default function LandingPage() {
               Войти
             </Button>
           </div>
+        </div>
+      </section>
+
+      <section className="border-t">
+        <div className="mx-auto flex w-full max-w-4xl flex-col gap-8 px-4 py-16">
+          <div className="flex flex-col items-start gap-2">
+            <h2 className="font-heading text-2xl font-semibold tracking-tight">Быстрый способ попробовать</h2>
+            <p className="max-w-2xl text-muted-foreground">
+              Не готовы выстраивать полную базу доказательств прямо сейчас? Экспресс-тюнинг резюме
+              даёт результат за три шага — без онбординга.
+            </p>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-3">
+            {quickStartSteps.map((s) => (
+              <Card key={s.title} className="gap-3">
+                <CardHeader>
+                  <span className="mb-1 flex size-9 items-center justify-center rounded-full bg-primary/10 text-primary">
+                    <s.icon className="size-4.5" aria-hidden />
+                  </span>
+                  <CardTitle className="font-heading text-base font-semibold">{s.title}</CardTitle>
+                </CardHeader>
+                <CardContent className="text-sm text-muted-foreground">{s.description}</CardContent>
+              </Card>
+            ))}
+          </div>
+          <Button render={<Link href="/signup" />} nativeButton={false} className="w-fit" size="lg">
+            Попробовать экспресс-тюнинг
+          </Button>
         </div>
       </section>
 

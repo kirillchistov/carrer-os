@@ -12,11 +12,13 @@ import {
   Kanban,
   BookOpen,
   Settings,
+  Sparkles,
 } from "lucide-react"
 import { cn } from "cn"
 
 const NAV_ITEMS = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/quick-tailor", label: "Экспресс-тюнинг", icon: Sparkles },
   { href: "/profile", label: "My Profile", icon: User },
   { href: "/evidence", label: "Evidence Bank", icon: FolderKanban },
   { href: "/tracks", label: "Career Tracks", icon: Compass },

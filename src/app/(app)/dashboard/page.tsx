@@ -1,6 +1,9 @@
+import Link from "next/link"
+import { Sparkles } from "lucide-react"
 import { requireCurrentUser } from "@/lib/auth/session"
 import { getDashboardSummary, getOnboardingProgress } from "@/lib/queries/dashboard"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
 import { OnboardingChecklist } from "@/components/dashboard/onboarding-checklist"
 import { OPPORTUNITY_STATUS_LABELS } from "@/lib/opportunities/labels"
 
@@ -37,6 +40,23 @@ export default async function DashboardPage() {
           Обзор текущей воронки и следующих шагов.
         </p>
       </div>
+
+      <Card className="border-primary/20 bg-primary/5">
+        <CardContent className="flex flex-wrap items-center justify-between gap-3 py-4">
+          <div className="flex items-center gap-3">
+            <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+              <Sparkles className="size-4.5" aria-hidden />
+            </span>
+            <div>
+              <p className="text-sm font-medium">Экспресс-тюнинг резюме</p>
+              <p className="text-sm text-muted-foreground">Резюме + 1–3 вакансии → адаптированные версии с письмами за один проход.</p>
+            </div>
+          </div>
+          <Button render={<Link href="/quick-tailor" />} nativeButton={false} size="sm">
+            Попробовать
+          </Button>
+        </CardContent>
+      </Card>
 
       <OnboardingChecklist progress={progress} />
 

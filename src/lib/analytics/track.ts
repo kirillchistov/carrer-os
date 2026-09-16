@@ -14,6 +14,7 @@ export type ProductEvent =
   | "resume_exported"
   | "application_stage_changed"
   | "interview_note_created"
+  | "quick_tailor_generated"
 
 type EventProperties = Record<string, string | number | boolean | null | undefined>
 

@@ -9,8 +9,10 @@ import { RequirementsEditor } from "@/components/opportunities/requirements-edit
 import { OpportunityTasks } from "@/components/opportunities/opportunity-tasks"
 import { OutreachDraftCard } from "@/components/opportunities/outreach-draft-card"
 import { DeleteOpportunityButton } from "@/components/opportunities/delete-opportunity-button"
+import { InterviewList } from "@/components/interviews/interview-list"
 import { Button } from "@/components/ui/button"
 import { getMyApplication } from "@/lib/actions/outreach"
+import { listInterviews } from "@/lib/actions/interviews"
 import type { OpportunityFormValues, RequirementFormValues } from "@/lib/validation/opportunity"
 
 function toIso(date: Date | null): string | null {
@@ -28,7 +30,11 @@ export default async function OpportunityDetailPage({ params }: { params: Promis
     throw error
   }
 
-  const [tasks, application] = await Promise.all([listOpportunityTasks(id), getMyApplication(id)])
+  const [tasks, application, interviews] = await Promise.all([
+    listOpportunityTasks(id),
+    getMyApplication(id),
+    listInterviews(id),
+  ])
   const { opportunity, requirements } = data
 
   const defaultValues: OpportunityFormValues = {
@@ -101,6 +107,7 @@ export default async function OpportunityDetailPage({ params }: { params: Promis
       />
       <RequirementsEditor opportunityId={id} initialRequirements={requirementValues} />
       <OutreachDraftCard key={application?.id ?? "none"} opportunityId={id} initialApplication={application} />
+      <InterviewList opportunityId={id} interviews={interviews} />
       <OpportunityTasks opportunityId={id} tasks={tasks} />
     </div>
   )

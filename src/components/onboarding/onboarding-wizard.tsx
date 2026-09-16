@@ -12,6 +12,7 @@ import { ExperienceImportPanel } from "@/components/experience/experience-import
 import { ExperienceList } from "@/components/experience/experience-list"
 import { CareerTrackForm } from "@/components/career-tracks/career-track-form"
 import { createCareerTrack } from "@/lib/actions/career-tracks"
+import { markOnboardingCompleted } from "@/lib/actions/onboarding"
 import { careerTrackFormDefaults } from "@/lib/validation/career-track"
 import type { ProfileFormValues } from "@/lib/validation/profile"
 
@@ -100,6 +101,7 @@ export function OnboardingWizard({
               submitLabel="Создать и продолжить"
               onSubmit={async (values) => {
                 await createCareerTrack(values)
+                await markOnboardingCompleted()
                 setStep(3)
               }}
             />

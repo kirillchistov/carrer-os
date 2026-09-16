@@ -57,3 +57,13 @@ export const TASK_PRIORITY_LABELS: Record<string, string> = {
   medium: "Средний",
   high: "Высокий",
 }
+
+export const INTERVIEW_TYPE_LABELS: Record<string, string> = {
+  recruiter_screen: "Скрининг рекрутера",
+  hiring_manager: "Интервью с руководителем",
+  panel: "Панельное интервью",
+  case_test_task: "Кейс / тестовое",
+  final_round: "Финальный раунд",
+  reference_check: "Проверка рекомендаций",
+  other: "Другое",
+}

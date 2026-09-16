@@ -143,7 +143,7 @@ export function RequirementsEditor({
                         ))}
                       </SelectContent>
                     </Select>
-                    <Button size="icon" variant="ghost" onClick={() => removeRow(row.key)}>
+                    <Button size="icon" variant="ghost" aria-label="Удалить требование" onClick={() => removeRow(row.key)}>
                       <Trash2 className="size-4" />
                     </Button>
                   </div>

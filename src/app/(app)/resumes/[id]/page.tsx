@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation"
 import Link from "next/link"
-import { ArrowLeft, Download } from "lucide-react"
+import { ArrowLeft } from "lucide-react"
 import { getResume } from "@/lib/actions/resumes"
 import { NotFoundError } from "@/lib/errors"
 import { prisma } from "@/lib/db/prisma"
@@ -8,7 +8,7 @@ import { requireCurrentUser } from "@/lib/auth/session"
 import { ResumeEditor } from "@/components/resumes/resume-editor"
 import { ResumeTitleEditor } from "@/components/resumes/resume-title-editor"
 import { TailorForOpportunityDialog } from "@/components/resumes/tailor-for-opportunity-dialog"
-import { Button } from "@/components/ui/button"
+import { ExportButtons } from "@/components/resumes/export-buttons"
 
 export default async function ResumeEditorPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -39,14 +39,7 @@ export default async function ResumeEditorPage({ params }: { params: Promise<{ i
           <ResumeTitleEditor resumeId={data.resume.id} initialName={data.resume.name} />
         </div>
         <div className="flex shrink-0 gap-2 pt-1">
-          <Button
-            variant="outline"
-            nativeButton={false}
-            render={<a href={`/api/resumes/${id}/export`} />}
-          >
-            <Download className="size-4" />
-            Скачать .docx
-          </Button>
+          <ExportButtons exportUrl={`/api/resumes/${id}/export`} />
           <TailorForOpportunityDialog
             resumeId={id}
             opportunities={opportunities.map((o) => ({ id: o.id, label: `${o.title} — ${o.companyName}` }))}

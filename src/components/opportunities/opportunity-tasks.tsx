@@ -49,6 +49,7 @@ export function OpportunityTasks({ opportunityId, tasks }: { opportunityId: stri
               size="icon"
               variant="ghost"
               disabled={pending}
+              aria-label="Удалить задачу"
               onClick={() =>
                 startTransition(async () => {
                   await deleteTask(task.id)
@@ -68,7 +69,13 @@ export function OpportunityTasks({ opportunityId, tasks }: { opportunityId: stri
             onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addTask())}
             placeholder="Новая задача"
           />
-          <Button size="icon" variant="outline" disabled={pending || !title.trim()} onClick={addTask}>
+          <Button
+            size="icon"
+            variant="outline"
+            disabled={pending || !title.trim()}
+            aria-label="Добавить задачу"
+            onClick={addTask}
+          >
             <Plus className="size-4" />
           </Button>
         </div>

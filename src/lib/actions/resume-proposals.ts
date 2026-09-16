@@ -8,6 +8,7 @@ import { resumeContentSchema, type ResumeContent } from "@/lib/validation/resume
 import { generateResumeProposals as runResumeProposalsTask } from "@/lib/ai/tasks/generate-resume-proposals"
 import { sanitizeResumeProposals } from "@/lib/resumes/sanitize-proposals"
 import { applyProposal } from "@/lib/resumes/apply-proposal"
+import { track } from "@/lib/analytics/track"
 
 type ProposalGenerationResult = { ok: true } | { ok: false; message: string }
 
@@ -167,6 +168,7 @@ export async function resolveProposal(
     }),
   ])
 
+  track("resume_change_accepted", user.id, { proposalId, resumeVersionId: resumeVersion.id })
   revalidatePath(`/resumes/${resumeVersion.resumeId}/versions/${resumeVersion.id}`)
   return { ok: true as const }
 }

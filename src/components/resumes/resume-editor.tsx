@@ -243,7 +243,13 @@ export function ResumeEditor({ resumeId, initialContent }: { resumeId: string; i
                       </FormItem>
                     )}
                   />
-                  <Button type="button" size="icon" variant="ghost" onClick={() => education.remove(index)}>
+                  <Button
+                    type="button"
+                    size="icon"
+                    variant="ghost"
+                    aria-label="Удалить запись об образовании"
+                    onClick={() => education.remove(index)}
+                  >
                     <Trash2 className="size-4" />
                   </Button>
                 </div>

@@ -64,6 +64,21 @@ export const fitDimensionSchema = z.enum([
 export const fitDimensionStatusSchema = z.enum(["strong", "partial", "gap", "unknown"])
 export const fitOverallLabelSchema = z.enum(["strong_fit", "partial_fit", "weak_fit", "unknown"])
 
+export const interviewTypeSchema = z.enum([
+  "recruiter_screen",
+  "hiring_manager",
+  "panel",
+  "case_test_task",
+  "final_round",
+  "reference_check",
+  "other",
+])
+export const careerTrackSuggestionFieldSchema = z.enum([
+  "businessProblems",
+  "mustHaveSkills",
+  "targetIndustries",
+])
+
 export const resumeChangeTypeSchema = z.enum(["add", "remove", "rewrite", "reorder"])
 export const applicationChannelSchema = z.enum([
   "direct_apply",

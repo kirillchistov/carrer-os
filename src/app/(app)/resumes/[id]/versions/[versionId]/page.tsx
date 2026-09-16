@@ -1,14 +1,14 @@
 import { notFound } from "next/navigation"
 import Link from "next/link"
-import { ArrowLeft, Download } from "lucide-react"
+import { ArrowLeft } from "lucide-react"
 import { getResumeVersionWithProposals } from "@/lib/actions/resume-proposals"
 import { requireCurrentUser } from "@/lib/auth/session"
 import { prisma } from "@/lib/db/prisma"
 import { NotFoundError } from "@/lib/errors"
-import { Button } from "@/components/ui/button"
 import { ProposalCard } from "@/components/resumes/proposal-card"
 import { ResumeContentPreview } from "@/components/resumes/resume-content-preview"
 import { RegenerateProposalsCard } from "@/components/resumes/regenerate-proposals-card"
+import { ExportButtons } from "@/components/resumes/export-buttons"
 
 export default async function ResumeVersionPage({
   params,
@@ -54,15 +54,9 @@ export default async function ResumeVersionPage({
             добавляет фактов, которых не было в ваших данных.
           </p>
         </div>
-        <Button
-          variant="outline"
-          nativeButton={false}
-          render={<a href={`/api/resume-versions/${versionId}/export`} />}
-          className="shrink-0"
-        >
-          <Download className="size-4" />
-          Скачать .docx
-        </Button>
+        <div className="flex shrink-0 gap-2">
+          <ExportButtons exportUrl={`/api/resume-versions/${versionId}/export`} />
+        </div>
       </div>
 
       {proposals.length === 0 && <RegenerateProposalsCard resumeVersionId={versionId} />}

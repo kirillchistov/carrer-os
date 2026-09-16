@@ -112,6 +112,7 @@ export async function runQuickTailor(
         language: "ru",
         structuredContent: result.data.resume,
         status: "draft",
+        source: "quick_tailor",
       },
     })
 
@@ -150,4 +151,31 @@ export async function runQuickTailor(
   revalidatePath("/resumes")
   revalidatePath("/pipeline")
   return { resumeId: baseResume.id, results }
+}
+
+export type QuickTailorHistoryItem = {
+  id: string
+  resumeId: string
+  opportunityId: string | null
+  title: string
+  companyName: string
+  createdAt: Date
+}
+
+export async function listQuickTailorResults(): Promise<QuickTailorHistoryItem[]> {
+  const user = await requireCurrentUser()
+  const versions = await prisma.resumeVersion.findMany({
+    where: { userId: user.id, source: "quick_tailor" },
+    include: { opportunity: { select: { title: true, companyName: true } } },
+    orderBy: { createdAt: "desc" },
+  })
+
+  return versions.map((v) => ({
+    id: v.id,
+    resumeId: v.resumeId,
+    opportunityId: v.opportunityId,
+    title: v.opportunity?.title ?? v.name,
+    companyName: v.opportunity?.companyName ?? "",
+    createdAt: v.createdAt,
+  }))
 }

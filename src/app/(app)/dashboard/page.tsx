@@ -12,16 +12,19 @@ const WIDGETS = [
     key: "needingAction",
     title: "Требуют действия",
     empty: "Пока нет возможностей, которые требуют действия в ближайшие 7 дней.",
+    href: "/pipeline",
   },
   {
     key: "followUpsDue",
     title: "Follow-up скоро",
     empty: "Нет запланированных follow-up на ближайшую неделю.",
+    href: "/pipeline",
   },
   {
     key: "upcomingInterviews",
     title: "Интервью на неделе",
     empty: "На ближайшую неделю интервью не запланированы.",
+    href: "/opportunities",
   },
 ] as const
 
@@ -64,40 +67,44 @@ export default async function DashboardPage() {
         {WIDGETS.map((widget) => {
           const count = summary[widget.key]
           return (
-            <Card key={widget.key}>
-              <CardHeader className="pb-2">
-                <CardDescription>{widget.title}</CardDescription>
-                <CardTitle className="text-3xl">{count}</CardTitle>
-              </CardHeader>
-              {count === 0 && (
-                <CardContent className="text-sm text-muted-foreground">{widget.empty}</CardContent>
-              )}
-            </Card>
+            <Link key={widget.key} href={widget.href} className="block">
+              <Card className="h-full transition-colors hover:border-primary/40 hover:bg-muted/30">
+                <CardHeader className="pb-2">
+                  <CardDescription>{widget.title}</CardDescription>
+                  <CardTitle className="text-3xl">{count}</CardTitle>
+                </CardHeader>
+                {count === 0 && (
+                  <CardContent className="text-sm text-muted-foreground">{widget.empty}</CardContent>
+                )}
+              </Card>
+            </Link>
           )
         })}
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Возможности по этапам</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {summary.applicationsByStage.length === 0 ? (
-            <p className="text-sm text-muted-foreground">
-              Пока нет сохранённых возможностей — начните с раздела «Opportunities».
-            </p>
-          ) : (
-            <ul className="grid gap-2 text-sm sm:grid-cols-2">
-              {summary.applicationsByStage.map((row) => (
-                <li key={row.status} className="flex items-center justify-between rounded-md border px-3 py-2">
-                  <span className="text-muted-foreground">{OPPORTUNITY_STATUS_LABELS[row.status]}</span>
-                  <span className="font-medium">{row._count._all}</span>
-                </li>
-              ))}
-            </ul>
-          )}
-        </CardContent>
-      </Card>
+      <Link href="/pipeline" className="block">
+        <Card className="transition-colors hover:border-primary/40 hover:bg-muted/30">
+          <CardHeader>
+            <CardTitle className="text-base">Возможности по этапам</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {summary.applicationsByStage.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                Пока нет сохранённых возможностей — начните с раздела «Opportunities».
+              </p>
+            ) : (
+              <ul className="grid gap-2 text-sm sm:grid-cols-2">
+                {summary.applicationsByStage.map((row) => (
+                  <li key={row.status} className="flex items-center justify-between rounded-md border px-3 py-2">
+                    <span className="text-muted-foreground">{OPPORTUNITY_STATUS_LABELS[row.status]}</span>
+                    <span className="font-medium">{row._count._all}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </CardContent>
+        </Card>
+      </Link>
     </div>
   )
 }

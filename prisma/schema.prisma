@@ -140,6 +140,12 @@ enum ResumeVersionStatus {
   @@schema("career_os")
 }
 
+enum ResumeVersionSource {
+  tailored
+  quick_tailor
+  @@schema("career_os")
+}
+
 enum FitDimensionStatus {
   strong
   partial
@@ -528,6 +534,7 @@ model ResumeVersion {
   language          Locale
   structuredContent Json
   status            ResumeVersionStatus @default(draft)
+  source            ResumeVersionSource @default(tailored)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

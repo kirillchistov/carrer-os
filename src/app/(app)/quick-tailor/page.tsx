@@ -1,6 +1,10 @@
 import { QuickTailorWizard } from "@/components/quick-tailor/quick-tailor-wizard"
+import { QuickTailorResultsList } from "@/components/quick-tailor/quick-tailor-results-list"
+import { listQuickTailorResults } from "@/lib/actions/quick-tailor"
 
-export default function QuickTailorPage() {
+export default async function QuickTailorPage() {
+  const history = await listQuickTailorResults()
+
   return (
     <div className="flex flex-col gap-6">
       <div>
@@ -12,6 +16,13 @@ export default function QuickTailorPage() {
         </p>
       </div>
       <QuickTailorWizard />
+      {history.length > 0 && (
+        <QuickTailorResultsList
+          items={history}
+          title="Прошлые результаты"
+          description="Возвращайтесь сюда, чтобы открыть, скачать или продолжить работу с уже сгенерированными версиями."
+        />
+      )}
     </div>
   )
 }

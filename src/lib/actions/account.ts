@@ -5,22 +5,34 @@ import { requireCurrentUser } from "@/lib/auth/session"
 
 export async function getMyCreditAccount() {
   const user = await requireCurrentUser()
-  return prisma.creditAccount.findUnique({ where: { userId: user.id } })
+  try {
+    return await prisma.creditAccount.findUnique({ where: { userId: user.id } })
+  } catch {
+    return null
+  }
 }
 
 export async function listMyRecentCreditTransactions(limit = 10) {
   const user = await requireCurrentUser()
-  return prisma.creditTransaction.findMany({
-    where: { userId: user.id },
-    orderBy: { createdAt: "desc" },
-    take: limit,
-  })
+  try {
+    return await prisma.creditTransaction.findMany({
+      where: { userId: user.id },
+      orderBy: { createdAt: "desc" },
+      take: limit,
+    })
+  } catch {
+    return []
+  }
 }
 
 export async function listMyAiFeedbackReports() {
   const user = await requireCurrentUser()
-  return prisma.aiFeedbackReport.findMany({
-    where: { userId: user.id },
-    orderBy: { createdAt: "desc" },
-  })
+  try {
+    return await prisma.aiFeedbackReport.findMany({
+      where: { userId: user.id },
+      orderBy: { createdAt: "desc" },
+    })
+  } catch {
+    return []
+  }
 }

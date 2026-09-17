@@ -2,6 +2,7 @@ import type { User } from "@prisma/client"
 import { prisma } from "@/lib/db/prisma"
 import { ProfileProvisioningError } from "@/lib/errors"
 import { logAuthEvent } from "@/lib/auth/log"
+import { logDbError } from "@/lib/db/connection"
 
 const SIGNUP_CREDIT_BALANCE = 20
 
@@ -11,10 +12,17 @@ const SIGNUP_CREDIT_BALANCE = 20
  * or a race on first request after signup.
  */
 export async function ensureAppUser(authUser: { id: string; email?: string | null }): Promise<User> {
-  const existing = await prisma.user.findUnique({
-    where: { id: authUser.id },
-    include: { creditAccount: true },
-  })
+  let existing: (User & { creditAccount: { id: string } | null }) | null
+  try {
+    existing = await prisma.user.findUnique({
+      where: { id: authUser.id },
+      include: { creditAccount: true },
+    })
+  } catch (error) {
+    logDbError(error, "query")
+    logAuthEvent("identity_backfill", { ok: false, reason: "db_unavailable" })
+    throw new ProfileProvisioningError()
+  }
 
   if (existing) {
     if (!existing.creditAccount) {
@@ -45,9 +53,14 @@ export async function ensureAppUser(authUser: { id: string; email?: string | nul
     })
     logAuthEvent("identity_backfill", { ok: true, reason: "created" })
     return user
-  } catch {
-    const raced = await prisma.user.findUnique({ where: { id: authUser.id } })
-    if (raced) return raced
+  } catch (error) {
+    try {
+      const raced = await prisma.user.findUnique({ where: { id: authUser.id } })
+      if (raced) return raced
+    } catch (lookupError) {
+      logDbError(lookupError, "query")
+    }
+    logDbError(error, "query")
     logAuthEvent("identity_backfill", { ok: false, reason: "create_failed" })
     throw new ProfileProvisioningError()
   }

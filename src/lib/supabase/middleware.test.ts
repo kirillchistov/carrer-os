@@ -2,10 +2,18 @@ import { describe, expect, it, vi } from "vitest"
 import { NextRequest } from "next/server"
 import { isProtectedPath } from "@/lib/auth/paths"
 
+const { getUser } = vi.hoisted(() => ({
+  getUser: vi.fn(async () => ({ data: { user: null }, error: null })),
+}))
+
 vi.mock("@supabase/ssr", () => ({
   createServerClient: vi.fn(() => ({
-    auth: { getUser: vi.fn(async () => ({ data: { user: null } })) },
+    auth: { getUser },
   })),
+}))
+
+vi.mock("@/lib/auth/log", () => ({
+  logAuthEvent: vi.fn(),
 }))
 
 describe("isProtectedPath", () => {
@@ -48,6 +56,7 @@ describe("isProtectedPath", () => {
 
 describe("updateSupabaseSession", () => {
   it("redirects an unauthenticated request away from a protected route", async () => {
+    getUser.mockResolvedValueOnce({ data: { user: null }, error: null })
     const { updateSupabaseSession } = await import("./middleware")
     const request = new NextRequest("http://localhost:3000/dashboard")
 
@@ -60,6 +69,7 @@ describe("updateSupabaseSession", () => {
   })
 
   it("includes the original query string in next", async () => {
+    getUser.mockResolvedValueOnce({ data: { user: null }, error: null })
     const { updateSupabaseSession } = await import("./middleware")
     const request = new NextRequest("http://localhost:3000/opportunities/abc?tab=fit")
 
@@ -69,6 +79,7 @@ describe("updateSupabaseSession", () => {
   })
 
   it("redirects unauthenticated /quick-tailor to login", async () => {
+    getUser.mockResolvedValueOnce({ data: { user: null }, error: null })
     const { updateSupabaseSession } = await import("./middleware")
     const request = new NextRequest("http://localhost:3000/quick-tailor")
 
@@ -81,11 +92,24 @@ describe("updateSupabaseSession", () => {
   })
 
   it("passes through an unauthenticated request to a public route", async () => {
+    getUser.mockResolvedValueOnce({ data: { user: null }, error: null })
     const { updateSupabaseSession } = await import("./middleware")
     const request = new NextRequest("http://localhost:3000/login")
 
     const response = await updateSupabaseSession(request)
 
     expect(response.headers.get("location")).toBeNull()
+  })
+
+  it("redirects to login instead of throwing when getUser fails", async () => {
+    getUser.mockRejectedValueOnce(Object.assign(new Error("over_request_rate_limit"), { status: 429 }))
+    const { updateSupabaseSession } = await import("./middleware")
+    const request = new NextRequest("http://localhost:3000/dashboard")
+
+    const response = await updateSupabaseSession(request)
+
+    expect(response.status).toBe(307)
+    const location = new URL(response.headers.get("location") ?? "")
+    expect(location.pathname).toBe("/login")
   })
 })

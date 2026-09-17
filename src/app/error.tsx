@@ -2,7 +2,8 @@
 
 import { useEffect } from "react"
 import Link from "next/link"
-import { Button } from "@/components/ui/button"
+import { Button, buttonVariants } from "@/components/ui/button"
+import { cn } from "cn"
 
 export default function ErrorPage({
   error,
@@ -30,9 +31,9 @@ export default function ErrorPage({
       </p>
       <div className="flex gap-2">
         <Button onClick={reset}>Повторить</Button>
-        <Button nativeButton={false} render={<Link href="/" />} variant="outline">
+        <Link href="/" className={cn(buttonVariants({ variant: "outline" }))}>
           На главную
-        </Button>
+        </Link>
       </div>
     </main>
   )

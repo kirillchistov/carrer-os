@@ -9,6 +9,13 @@ const LOGIN_ERROR_MESSAGES: Record<string, string> = {
   expired: "Ссылка устарела. Запросите новую.",
 }
 
+function withNext(href: string, next?: string) {
+  if (!next) return href
+  const url = new URL(href, "https://local.invalid")
+  url.searchParams.set("next", next)
+  return `${url.pathname}${url.search}`
+}
+
 export default async function LoginPage({
   searchParams,
 }: {
@@ -24,7 +31,7 @@ export default async function LoginPage({
       description={
         <>
           Ещё нет аккаунта?{" "}
-          <Link href="/signup" className="text-foreground underline underline-offset-4">
+          <Link href={withNext("/signup", next)} className="text-foreground underline underline-offset-4">
             Зарегистрироваться
           </Link>
         </>

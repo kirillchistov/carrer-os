@@ -25,7 +25,7 @@ const sourceSerif = Source_Serif_4({
 export const metadata: Metadata = {
   title: "Career Evidence OS",
   description:
-    "Помогаем опытным кандидатам превращать карьеру в доказанную ценность и находить следующую роль осознанно.",
+    "Экспресс-тюнинг резюме под одну вакансию для руководителей и экспертов. Факты из вашего опыта, без онбординга в первый вечер.",
 }
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

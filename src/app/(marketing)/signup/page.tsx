@@ -3,6 +3,13 @@ import { AuthCard } from "@/components/auth/auth-card"
 import { SignupForm } from "@/components/auth/signup-form"
 import { safeNextPath } from "@/lib/auth/safe-next"
 
+function withNext(href: string, next?: string) {
+  if (!next) return href
+  const url = new URL(href, "https://local.invalid")
+  url.searchParams.set("next", next)
+  return `${url.pathname}${url.search}`
+}
+
 export default async function SignupPage({
   searchParams,
 }: {
@@ -17,7 +24,7 @@ export default async function SignupPage({
       description={
         <>
           Уже есть аккаунт?{" "}
-          <Link href="/login" className="text-foreground underline underline-offset-4">
+          <Link href={withNext("/login", next)} className="text-foreground underline underline-offset-4">
             Войти
           </Link>
         </>

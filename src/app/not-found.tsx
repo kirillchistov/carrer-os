@@ -1,5 +1,6 @@
 import Link from "next/link"
-import { Button } from "@/components/ui/button"
+import { buttonVariants } from "@/components/ui/button"
+import { cn } from "cn"
 
 export default function NotFoundPage() {
   return (
@@ -8,9 +9,9 @@ export default function NotFoundPage() {
       <p className="max-w-md text-center text-sm text-muted-foreground">
         Такой страницы нет — проверьте адрес или вернитесь на главную.
       </p>
-      <Button nativeButton={false} render={<Link href="/" />}>
+      <Link href="/" className={cn(buttonVariants())}>
         На главную
-      </Button>
+      </Link>
     </main>
   )
 }

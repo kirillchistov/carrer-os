@@ -42,17 +42,18 @@ export async function ensureAppUser(authUser: { id: string; email?: string | nul
   }
 
   try {
-    const user = await prisma.$transaction(async (tx) => {
-      const created = await tx.user.create({
-        data: { id: authUser.id, email, locale: "ru" },
-      })
-      await tx.creditAccount.create({
-        data: { userId: created.id, balance: SIGNUP_CREDIT_BALANCE },
-      })
-      return created
+    // Sequential writes: the transaction pooler (port 6543) does not reliably
+    // support Prisma interactive transactions.
+    const created = await prisma.user.create({
+      data: { id: authUser.id, email, locale: "ru" },
+    })
+    await prisma.creditAccount.create({
+      data: { userId: created.id, balance: SIGNUP_CREDIT_BALANCE },
+    }).catch(() => {
+      // Unique race with the trigger — ignore.
     })
     logAuthEvent("identity_backfill", { ok: true, reason: "created" })
-    return user
+    return created
   } catch (error) {
     try {
       const raced = await prisma.user.findUnique({ where: { id: authUser.id } })

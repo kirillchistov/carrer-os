@@ -16,7 +16,7 @@ const WIDGETS = [
   },
   {
     key: "followUpsDue",
-    title: "Follow-up скоро",
+    title: "Напоминания на неделе",
     empty: "Нет запланированных follow-up на ближайшую неделю.",
     href: "/pipeline",
   },

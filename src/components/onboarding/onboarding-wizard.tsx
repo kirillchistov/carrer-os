@@ -13,6 +13,7 @@ import { ExperienceList } from "@/components/experience/experience-list"
 import { CareerTrackForm } from "@/components/career-tracks/career-track-form"
 import { createCareerTrack } from "@/lib/actions/career-tracks"
 import { markOnboardingCompleted } from "@/lib/actions/onboarding"
+import { listMyExperiences } from "@/lib/actions/experience"
 import { careerTrackFormDefaults } from "@/lib/validation/career-track"
 import type { ProfileFormValues } from "@/lib/validation/profile"
 
@@ -26,8 +27,15 @@ export function OnboardingWizard({
   initialExperiences: Experience[]
 }) {
   const [step, setStep] = useState(0)
-  const experiences = initialExperiences
+  const [experiences, setExperiences] = useState(initialExperiences)
+  const [confirmSkipExperience, setConfirmSkipExperience] = useState(false)
   const router = useRouter()
+
+  async function refreshExperiences() {
+    const next = await listMyExperiences()
+    setExperiences(next)
+    setConfirmSkipExperience(false)
+  }
 
   return (
     <div className="flex flex-col gap-6">
@@ -59,7 +67,7 @@ export function OnboardingWizard({
           <CardHeader>
             <CardTitle className="text-base">Расскажите о себе</CardTitle>
             <CardDescription>
-              Основные данные и предпочтения — их можно будет уточнить позже в разделе Profile.
+              Основные данные и предпочтения — их можно будет уточнить позже в профиле.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -70,18 +78,35 @@ export function OnboardingWizard({
 
       {step === 1 && (
         <div className="flex flex-col gap-4">
-          <ExperienceImportPanel />
+          <ExperienceImportPanel onImported={refreshExperiences} />
           {experiences.length > 0 && (
             <div>
               <h3 className="mb-2 text-sm font-medium">Проверьте извлечённый опыт</h3>
               <ExperienceList experiences={experiences} />
             </div>
           )}
-          <div className="flex justify-between">
+          <div className="flex flex-wrap items-center justify-between gap-2">
             <Button variant="ghost" onClick={() => setStep(0)}>
               Назад
             </Button>
-            <Button onClick={() => setStep(2)}>Далее</Button>
+            <div className="flex flex-col items-end gap-1">
+              {experiences.length === 0 && confirmSkipExperience ? (
+                <p className="max-w-xs text-right text-xs text-muted-foreground">
+                  Опыт можно добавить позже в профиле. Нажмите ещё раз, чтобы продолжить.
+                </p>
+              ) : null}
+              <Button
+                onClick={() => {
+                  if (experiences.length === 0 && !confirmSkipExperience) {
+                    setConfirmSkipExperience(true)
+                    return
+                  }
+                  setStep(2)
+                }}
+              >
+                {experiences.length === 0 ? "Продолжить без опыта" : "Далее"}
+              </Button>
+            </div>
           </div>
         </div>
       )}
@@ -92,7 +117,7 @@ export function OnboardingWizard({
             <CardTitle className="text-base">Первый карьерный трек</CardTitle>
             <CardDescription>
               Например, целевая должность или тип проектной занятости. Остальные треки можно
-              добавить позже в разделе Career Tracks.
+              добавить позже в разделе «Карьерные треки».
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -118,11 +143,11 @@ export function OnboardingWizard({
             <CardTitle className="text-base">Готово</CardTitle>
             <CardDescription>
               Профиль, опыт и первый карьерный трек сохранены. Дальше — добавьте доказательства
-              опыта в Evidence Bank и первую возможность в Opportunities.
+              и первую возможность.
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Button onClick={() => router.push("/dashboard")}>Перейти на Dashboard</Button>
+            <Button onClick={() => router.push("/dashboard")}>На дашборд</Button>
           </CardContent>
         </Card>
       )}

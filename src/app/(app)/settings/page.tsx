@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { Button } from "@/components/ui/button"
 import { signOut } from "@/lib/actions/auth"
+import { DeleteAccountForm } from "@/components/account/delete-account-form"
 
 const FEEDBACK_STATUS_LABELS: Record<string, string> = {
   open: "Открыто",
@@ -30,7 +31,7 @@ export default async function SettingsPage() {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="font-heading text-2xl font-semibold tracking-tight">Settings</h1>
+        <h1 className="font-heading text-2xl font-semibold tracking-tight">Настройки</h1>
         <p className="text-sm text-muted-foreground">Аккаунт и системные настройки.</p>
       </div>
 
@@ -50,6 +51,18 @@ export default async function SettingsPage() {
               Выйти из аккаунта
             </Button>
           </form>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Удаление аккаунта</CardTitle>
+          <CardDescription>
+            Резюме, вакансии и связанные записи будут удалены. Восстановить аккаунт нельзя.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <DeleteAccountForm email={user.email} />
         </CardContent>
       </Card>
 

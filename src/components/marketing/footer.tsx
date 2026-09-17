@@ -1,3 +1,5 @@
+import Link from "next/link"
+
 export function MarketingFooter() {
   return (
     <footer className="mt-auto border-t border-border/60">
@@ -6,10 +8,14 @@ export function MarketingFooter() {
           <span className="size-2 rounded-full bg-primary" aria-hidden />
           Career Evidence OS
         </p>
-        <p className="text-sm text-muted-foreground">
-          Политика конфиденциальности и оферта появятся отдельно. Данные резюме остаются в вашем
-          аккаунте.
-        </p>
+        <nav className="flex flex-wrap gap-x-4 gap-y-2 text-sm text-muted-foreground">
+          <Link href="/privacy" className="hover:text-foreground">
+            Конфиденциальность
+          </Link>
+          <Link href="/terms" className="hover:text-foreground">
+            Оферта
+          </Link>
+        </nav>
       </div>
     </footer>
   )

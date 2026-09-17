@@ -17,16 +17,16 @@ import {
 import { cn } from "cn"
 
 const NAV_ITEMS = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/dashboard", label: "Дашборд", icon: LayoutDashboard },
   { href: "/quick-tailor", label: "Экспресс-тюнинг", icon: Sparkles },
-  { href: "/profile", label: "My Profile", icon: User },
-  { href: "/evidence", label: "Evidence Bank", icon: FolderKanban },
-  { href: "/tracks", label: "Career Tracks", icon: Compass },
-  { href: "/resumes", label: "Resumes", icon: FileText },
-  { href: "/opportunities", label: "Opportunities", icon: Briefcase },
-  { href: "/pipeline", label: "Pipeline", icon: Kanban },
-  { href: "/resources", label: "Resources", icon: BookOpen },
-  { href: "/settings", label: "Settings", icon: Settings },
+  { href: "/profile", label: "Профиль", icon: User },
+  { href: "/evidence", label: "Доказательства", icon: FolderKanban },
+  { href: "/tracks", label: "Карьерные треки", icon: Compass },
+  { href: "/resumes", label: "Резюме", icon: FileText },
+  { href: "/opportunities", label: "Возможности", icon: Briefcase },
+  { href: "/pipeline", label: "Воронка", icon: Kanban },
+  { href: "/resources", label: "Материалы", icon: BookOpen },
+  { href: "/settings", label: "Настройки", icon: Settings },
 ] as const
 
 export function SidebarNav({ className }: { className?: string }) {

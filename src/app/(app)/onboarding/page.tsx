@@ -1,9 +1,14 @@
+import { redirect } from "next/navigation"
+import { requireCurrentUser } from "@/lib/auth/session"
 import { getMyProfile } from "@/lib/actions/profile"
 import { listMyExperiences } from "@/lib/actions/experience"
 import { OnboardingWizard } from "@/components/onboarding/onboarding-wizard"
 import { toProfileFormValues } from "@/lib/validation/profile"
 
 export default async function OnboardingPage() {
+  const user = await requireCurrentUser()
+  if (user.onboardingCompletedAt) redirect("/dashboard")
+
   const [profile, experiences] = await Promise.all([getMyProfile(), listMyExperiences()])
 
   return (

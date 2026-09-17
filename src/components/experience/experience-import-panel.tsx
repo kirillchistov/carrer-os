@@ -14,7 +14,7 @@ type ImportOutcome =
   | { kind: "error"; message: string }
   | null
 
-export function ExperienceImportPanel() {
+export function ExperienceImportPanel({ onImported }: { onImported?: () => void }) {
   const router = useRouter()
   const [pasteText, setPasteText] = useState("")
   const [pending, startTransition] = useTransition()
@@ -29,6 +29,7 @@ export function ExperienceImportPanel() {
         setOutcome({ kind: "success", created: result.created, aiRunId: result.aiRunId, notes: result.notes })
         setPasteText("")
         router.refresh()
+        onImported?.()
       } else {
         setOutcome({ kind: "error", message: result.message })
       }
@@ -44,6 +45,7 @@ export function ExperienceImportPanel() {
       if (result.ok) {
         setOutcome({ kind: "success", created: result.created, aiRunId: result.aiRunId, notes: result.notes })
         router.refresh()
+        onImported?.()
       } else {
         setOutcome({ kind: "error", message: result.message })
       }

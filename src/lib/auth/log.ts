@@ -12,6 +12,7 @@ export type AuthLogEvent =
   | "sign_out"
   | "identity_backfill"
   | "session"
+  | "account_delete"
 
 export function logAuthEvent(
   event: AuthLogEvent,

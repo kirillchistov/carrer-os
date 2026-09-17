@@ -60,7 +60,7 @@ export default function ResourcesPage() {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="font-heading text-2xl font-semibold tracking-tight">Ресурсы</h1>
+        <h1 className="font-heading text-2xl font-semibold tracking-tight">Материалы</h1>
         <p className="text-sm text-muted-foreground">
           Короткие практические заметки по поиску роли для опытных кандидатов — без общих
           советов вроде «будьте увереннее». Раздел статический, без AI.

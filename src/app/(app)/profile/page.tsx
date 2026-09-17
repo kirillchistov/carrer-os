@@ -11,12 +11,12 @@ export default async function ProfilePage() {
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-heading text-2xl font-semibold tracking-tight">My Profile</h1>
+          <h1 className="font-heading text-2xl font-semibold tracking-tight">Профиль</h1>
           <p className="text-sm text-muted-foreground">
             Основные данные, предпочтения по формату работы и non-negotiables.
           </p>
         </div>
-        <Button render={<Link href="/profile/experience" />} variant="outline" nativeButton={false}>
+        <Button variant="outline" nativeButton={false} render={<Link href="/profile/experience" />}>
           Опыт работы
         </Button>
       </div>

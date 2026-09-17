@@ -41,6 +41,8 @@ describe("isProtectedPath", () => {
     "/login",
     "/signup",
     "/try",
+    "/privacy",
+    "/terms",
     "/auth/callback",
     "/forgot-password",
     "/reset-password",

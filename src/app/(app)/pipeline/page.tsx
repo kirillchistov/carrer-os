@@ -7,9 +7,9 @@ export default async function PipelinePage() {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="font-heading text-2xl font-semibold tracking-tight">Pipeline</h1>
+        <h1 className="font-heading text-2xl font-semibold tracking-tight">Воронка</h1>
         <p className="text-sm text-muted-foreground">
-          Перетаскивайте карточки между этапами воронки.
+          На телефоне смените этап в списке на карточке. На компьютере карточки можно перетаскивать.
         </p>
       </div>
       <KanbanBoard initialOpportunities={opportunities} />

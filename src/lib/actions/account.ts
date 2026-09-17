@@ -1,7 +1,12 @@
 "use server"
 
+import { redirect } from "next/navigation"
 import { prisma } from "@/lib/db/prisma"
 import { requireCurrentUser } from "@/lib/auth/session"
+import { createSupabaseAdminClient } from "@/lib/supabase/admin"
+import { createSupabaseServerClient } from "@/lib/supabase/server"
+import { env } from "@/lib/env"
+import { logAuthEvent } from "@/lib/auth/log"
 
 export async function getMyCreditAccount() {
   const user = await requireCurrentUser()
@@ -35,4 +40,23 @@ export async function listMyAiFeedbackReports() {
   } catch {
     return []
   }
+}
+
+export async function deleteMyAccount(): Promise<{ error: string | null }> {
+  const user = await requireCurrentUser()
+  if (!env.SUPABASE_SERVICE_ROLE_KEY) {
+    return { error: "Удаление из интерфейса недоступно. Напишите нам с вашего email." }
+  }
+
+  const admin = createSupabaseAdminClient()
+  const { error } = await admin.auth.admin.deleteUser(user.id)
+  if (error) {
+    logAuthEvent("account_delete", { ok: false, reason: error.code ?? "delete_failed" })
+    return { error: "Не удалось удалить аккаунт. Попробуйте позже." }
+  }
+
+  logAuthEvent("account_delete", { ok: true })
+  const supabase = await createSupabaseServerClient()
+  await supabase.auth.signOut()
+  redirect("/")
 }

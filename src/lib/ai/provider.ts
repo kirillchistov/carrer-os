@@ -5,6 +5,7 @@ export type StructuredGenerationRequest<T> = {
   prompt: string
   schema: ZodType<T>
   maxTokens?: number
+  model?: string
 }
 
 export type StructuredGenerationResult<T> = {

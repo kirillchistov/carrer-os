@@ -7,6 +7,7 @@ import { buildResumeDocx } from "@/lib/resumes/build-docx"
 import { buildResumePdf } from "@/lib/resumes/build-pdf"
 import { track } from "@/lib/analytics/track"
 import { contentDispositionAttachment } from "@/lib/http/content-disposition"
+import { resumeExportStem } from "@/lib/resumes/export-filename"
 
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -17,6 +18,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
   const parsed = resumeContentSchema.safeParse(resume.structuredContent)
   const content = parsed.success ? parsed.data : emptyResumeContent
 
+  const stem = resumeExportStem({ name: resume.name })
   track("resume_exported", user.id, { resumeId: resume.id, format })
 
   if (format === "pdf") {
@@ -24,7 +26,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     return new NextResponse(new Uint8Array(bytes), {
       headers: {
         "Content-Type": "application/pdf",
-        "Content-Disposition": contentDispositionAttachment(resume.name, "pdf"),
+        "Content-Disposition": contentDispositionAttachment(stem, "pdf"),
       },
     })
   }
@@ -33,7 +35,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
   return new NextResponse(new Uint8Array(buffer), {
     headers: {
       "Content-Type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-      "Content-Disposition": contentDispositionAttachment(resume.name, "docx"),
+      "Content-Disposition": contentDispositionAttachment(stem, "docx"),
     },
   })
 }

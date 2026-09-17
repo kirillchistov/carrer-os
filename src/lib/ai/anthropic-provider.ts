@@ -17,7 +17,7 @@ export class AnthropicProvider implements LlmProvider {
     request: StructuredGenerationRequest<T>
   ): Promise<StructuredGenerationResult<T>> {
     const response = await this.client.messages.parse({
-      model: this.model,
+      model: request.model ?? this.model,
       max_tokens: request.maxTokens ?? 4096,
       system: request.system,
       messages: [{ role: "user", content: request.prompt }],
@@ -27,7 +27,7 @@ export class AnthropicProvider implements LlmProvider {
     return {
       data: response.parsed_output,
       provider: this.name,
-      model: this.model,
+      model: request.model ?? this.model,
     }
   }
 }

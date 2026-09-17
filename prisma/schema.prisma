@@ -288,6 +288,7 @@ model User {
   email       String   @unique
   displayName String?
   locale      Locale   @default(ru)
+  onboardingCompletedAt DateTime?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 

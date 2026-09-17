@@ -70,7 +70,7 @@ export default function LandingPage() {
     <main className="flex flex-1 flex-col">
       <section className="relative overflow-hidden">
         <WordField />
-        <div className="relative mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 py-20 sm:px-6 sm:py-28 lg:py-32">
+        <div className="relative z-10 mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 py-20 sm:px-6 sm:py-28 lg:py-32">
           <p className="flex items-center gap-2 font-mono text-xs font-medium uppercase tracking-[0.2em] text-primary">
             <span className="size-1.5 rounded-full bg-primary" aria-hidden />
             3 шага · без онбординга
@@ -226,7 +226,7 @@ export default function LandingPage() {
       <section className="border-t border-border/60">
         <div className="relative overflow-hidden">
           <WordField />
-          <div className="relative mx-auto flex w-full max-w-6xl flex-col items-start gap-6 px-4 py-20 sm:px-6 lg:py-28">
+          <div className="relative z-10 mx-auto flex w-full max-w-6xl flex-col items-start gap-6 px-4 py-20 sm:px-6 lg:py-28">
             <h2 className="max-w-3xl font-sans text-4xl font-black tracking-tight sm:text-6xl">
               Адаптировать резюме под эту роль
             </h2>

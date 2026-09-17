@@ -1,0 +1,18 @@
+.clip {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+  contain: paint;
+}
+
+.field {
+  position: absolute;
+  inset: -25%;
+  opacity: 0.07;
+  background-repeat: repeat;
+  background-size: 72rem 22rem;
+  transform: rotate(-11deg);
+}

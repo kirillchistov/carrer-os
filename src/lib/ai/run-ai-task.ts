@@ -4,6 +4,7 @@ import type { AiRunType } from "@prisma/client"
 import { prisma } from "@/lib/db/prisma"
 import { getLlmProvider } from "./get-provider"
 import { SAFETY_PREAMBLE } from "./safety-preamble"
+import { modelForAiRunType } from "./models"
 
 const DEFAULT_CREDIT_COST = 1
 const PROMPT_VERSION = "2026-09-1"
@@ -71,7 +72,7 @@ export async function runAiTask<T>(input: RunAiTaskInput<T>): Promise<RunAiTaskR
         inputEntityIds: input.inputEntityIds,
         inputHash,
         provider: provider.name,
-        model: provider.model,
+        model: modelForAiRunType(input.type),
         promptVersion: PROMPT_VERSION,
         status: "pending",
       },
@@ -94,7 +95,7 @@ export async function runAiTask<T>(input: RunAiTaskInput<T>): Promise<RunAiTaskR
       ok: false,
       aiRunId: null,
       error: "insufficient_credits",
-      message: "Недостаточно AI-кредитов для этого действия.",
+      message: "Недостаточно AI-кредитов. Баланс — в Настройках; пополнение пока недоступно.",
     }
   }
 
@@ -104,6 +105,7 @@ export async function runAiTask<T>(input: RunAiTaskInput<T>): Promise<RunAiTaskR
       prompt: input.userContent,
       schema: input.schema,
       maxTokens: input.maxTokens,
+      model: modelForAiRunType(input.type),
     })
 
     if (result.data === null) {

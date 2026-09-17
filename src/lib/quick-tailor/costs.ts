@@ -1,0 +1,6 @@
+export const QUICK_TAILOR_MATCH_CREDIT_COST = 1
+export const QUICK_TAILOR_GENERATE_CREDIT_COST = 3
+
+export const MIN_RESUME_CHARS = 50
+export const MIN_JOB_CHARS = 30
+export const MAX_CLARIFYING_QUESTIONS = 4

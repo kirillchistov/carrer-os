@@ -52,7 +52,7 @@ export default async function DashboardPage() {
             </span>
             <div>
               <p className="text-sm font-medium">Экспресс-тюнинг резюме</p>
-              <p className="text-sm text-muted-foreground">Резюме + 1–3 вакансии → адаптированные версии с письмами за один проход.</p>
+              <p className="text-sm text-muted-foreground">Резюме + вакансия → сверка требований, уточнения и письмо.</p>
             </div>
           </div>
           <Button render={<Link href="/quick-tailor" />} nativeButton={false} size="sm">

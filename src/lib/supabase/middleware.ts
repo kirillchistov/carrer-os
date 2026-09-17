@@ -1,53 +1,23 @@
-import { createServerClient } from "@supabase/ssr"
 import { NextResponse, type NextRequest } from "next/server"
-import { env } from "@/lib/env"
+import { isProtectedPath } from "@/lib/auth/paths"
+import { createSupabaseCookieClient } from "@/lib/supabase/cookie-client"
 
-const PROTECTED_PREFIXES = [
-  "/dashboard",
-  "/onboarding",
-  "/profile",
-  "/evidence",
-  "/tracks",
-  "/resumes",
-  "/opportunities",
-  "/pipeline",
-  "/settings",
-]
-
-export function isProtectedPath(pathname: string): boolean {
-  return PROTECTED_PREFIXES.some((prefix) => pathname.startsWith(prefix))
-}
+export { isProtectedPath }
 
 export async function updateSupabaseSession(request: NextRequest) {
-  let response = NextResponse.next({ request })
-
-  const supabase = createServerClient(env.NEXT_PUBLIC_SUPABASE_URL, env.NEXT_PUBLIC_SUPABASE_ANON_KEY, {
-    cookies: {
-      getAll() {
-        return request.cookies.getAll()
-      },
-      setAll(cookiesToSet) {
-        for (const { name, value } of cookiesToSet) {
-          request.cookies.set(name, value)
-        }
-        response = NextResponse.next({ request })
-        for (const { name, value, options } of cookiesToSet) {
-          response.cookies.set(name, value, options)
-        }
-      },
-    },
-  })
-
+  const { supabase, applyCookies } = createSupabaseCookieClient(request)
   const {
     data: { user },
   } = await supabase.auth.getUser()
 
   if (isProtectedPath(request.nextUrl.pathname) && !user) {
     const redirectUrl = request.nextUrl.clone()
+    const nextPath = `${request.nextUrl.pathname}${request.nextUrl.search}`
     redirectUrl.pathname = "/login"
-    redirectUrl.searchParams.set("next", request.nextUrl.pathname)
+    redirectUrl.search = ""
+    redirectUrl.searchParams.set("next", nextPath)
     return NextResponse.redirect(redirectUrl)
   }
 
-  return response
+  return applyCookies(NextResponse.next({ request }))
 }

@@ -1,24 +1,37 @@
 import Link from "next/link"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { AuthCard } from "@/components/auth/auth-card"
 import { LoginForm } from "@/components/auth/login-form"
+import { safeNextPath } from "@/lib/auth/safe-next"
 
-export default function LoginPage() {
+const LOGIN_ERROR_MESSAGES: Record<string, string> = {
+  auth_callback_failed:
+    "Не удалось войти по ссылке. Запросите новое письмо или войдите с паролем.",
+  expired: "Ссылка устарела. Запросите новую.",
+}
+
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ next?: string; error?: string }>
+}) {
+  const params = await searchParams
+  const next = params.next ? safeNextPath(params.next) : undefined
+  const errorMessage = params.error ? LOGIN_ERROR_MESSAGES[params.error] : undefined
+
   return (
-    <main className="flex flex-1 items-center justify-center px-4 py-16">
-      <Card className="w-full max-w-sm">
-        <CardHeader>
-          <CardTitle className="text-xl">Вход в Career Evidence OS</CardTitle>
-          <CardDescription>
-            Ещё нет аккаунта?{" "}
-            <Link href="/signup" className="text-foreground underline underline-offset-4">
-              Зарегистрироваться
-            </Link>
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <LoginForm />
-        </CardContent>
-      </Card>
-    </main>
+    <AuthCard
+      title="Вход в Career Evidence OS"
+      description={
+        <>
+          Ещё нет аккаунта?{" "}
+          <Link href="/signup" className="text-foreground underline underline-offset-4">
+            Зарегистрироваться
+          </Link>
+        </>
+      }
+    >
+      {errorMessage ? <p className="mb-4 text-sm text-destructive">{errorMessage}</p> : null}
+      <LoginForm next={next} />
+    </AuthCard>
   )
 }

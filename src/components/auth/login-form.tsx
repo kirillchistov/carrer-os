@@ -1,6 +1,7 @@
 "use client"
 
 import { useActionState, useState, useTransition } from "react"
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -9,7 +10,7 @@ import { signInWithPassword, sendMagicLink, type AuthActionState } from "@/lib/a
 
 const initialState: AuthActionState = { error: null }
 
-export function LoginForm() {
+export function LoginForm({ next }: { next?: string }) {
   const [passwordState, passwordAction, passwordPending] = useActionState(
     signInWithPassword,
     initialState
@@ -27,6 +28,7 @@ export function LoginForm() {
 
       <TabsContent value="password" className="space-y-4 pt-4">
         <form action={passwordAction} className="space-y-4">
+          {next ? <input type="hidden" name="next" value={next} /> : null}
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <Input id="email" name="email" type="email" autoComplete="email" required />
@@ -39,6 +41,11 @@ export function LoginForm() {
           <Button type="submit" className="w-full" disabled={passwordPending}>
             {passwordPending ? "Входим..." : "Войти"}
           </Button>
+          <p className="text-center text-sm text-muted-foreground">
+            <Link href="/forgot-password" className="underline underline-offset-4">
+              Забыли пароль?
+            </Link>
+          </p>
         </form>
       </TabsContent>
 
@@ -62,6 +69,7 @@ export function LoginForm() {
             }}
             className="space-y-4"
           >
+            {next ? <input type="hidden" name="next" value={next} /> : null}
             <div className="space-y-2">
               <Label htmlFor="magic-email">Email</Label>
               <Input id="magic-email" name="email" type="email" autoComplete="email" required />

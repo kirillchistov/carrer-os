@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { envSchema } from "./env"
+import { envSchema, resolveAppUrl } from "./env"
 
 const validEnv = {
   NEXT_PUBLIC_SUPABASE_URL: "https://xxxx.supabase.co",
@@ -11,11 +11,6 @@ describe("envSchema", () => {
   it("accepts the minimal required set of variables", () => {
     const result = envSchema.safeParse(validEnv)
     expect(result.success).toBe(true)
-  })
-
-  it("defaults NEXT_PUBLIC_APP_URL when not provided", () => {
-    const result = envSchema.parse(validEnv)
-    expect(result.NEXT_PUBLIC_APP_URL).toBe("http://localhost:3000")
   })
 
   it("rejects a missing DATABASE_URL", () => {
@@ -33,5 +28,21 @@ describe("envSchema", () => {
   it("treats SUPABASE_SERVICE_ROLE_KEY as optional (server-only, not always present client-side)", () => {
     const result = envSchema.safeParse(validEnv)
     expect(result.success).toBe(true)
+  })
+})
+
+describe("resolveAppUrl", () => {
+  it("defaults to localhost outside production", () => {
+    expect(resolveAppUrl(undefined, "development")).toBe("http://localhost:3000")
+    expect(resolveAppUrl(undefined, "test")).toBe("http://localhost:3000")
+  })
+
+  it("requires a public https URL in production", () => {
+    expect(() => resolveAppUrl(undefined, "production")).toThrow(/required in production/)
+    expect(() => resolveAppUrl("http://localhost:3000", "production")).toThrow(/public https/)
+    expect(() => resolveAppUrl("https://localhost:3000", "production")).toThrow(/public https/)
+    expect(resolveAppUrl("https://carrer-os-three.vercel.app", "production")).toBe(
+      "https://carrer-os-three.vercel.app"
+    )
   })
 })

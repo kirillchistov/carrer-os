@@ -8,11 +8,21 @@ import { signUpWithPassword, type AuthActionState } from "@/lib/actions/auth"
 
 const initialState: AuthActionState = { error: null }
 
-export function SignupForm() {
+export function SignupForm({ next }: { next?: string }) {
   const [state, formAction, pending] = useActionState(signUpWithPassword, initialState)
+
+  if (state.checkEmail) {
+    return (
+      <p className="text-sm text-muted-foreground">
+        Мы отправили письмо для подтверждения. Откройте ссылку из почты, чтобы войти — после
+        этого можно перейти к работе в сервисе.
+      </p>
+    )
+  }
 
   return (
     <form action={formAction} className="space-y-4">
+      {next ? <input type="hidden" name="next" value={next} /> : null}
       <div className="space-y-2">
         <Label htmlFor="email">Email</Label>
         <Input id="email" name="email" type="email" autoComplete="email" required />

@@ -1,24 +1,29 @@
 import Link from "next/link"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { AuthCard } from "@/components/auth/auth-card"
 import { SignupForm } from "@/components/auth/signup-form"
+import { safeNextPath } from "@/lib/auth/safe-next"
 
-export default function SignupPage() {
+export default async function SignupPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ next?: string }>
+}) {
+  const params = await searchParams
+  const next = params.next ? safeNextPath(params.next) : undefined
+
   return (
-    <main className="flex flex-1 items-center justify-center px-4 py-16">
-      <Card className="w-full max-w-sm">
-        <CardHeader>
-          <CardTitle className="text-xl">Регистрация</CardTitle>
-          <CardDescription>
-            Уже есть аккаунт?{" "}
-            <Link href="/login" className="text-foreground underline underline-offset-4">
-              Войти
-            </Link>
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <SignupForm />
-        </CardContent>
-      </Card>
-    </main>
+    <AuthCard
+      title="Регистрация"
+      description={
+        <>
+          Уже есть аккаунт?{" "}
+          <Link href="/login" className="text-foreground underline underline-offset-4">
+            Войти
+          </Link>
+        </>
+      }
+    >
+      <SignupForm next={next} />
+    </AuthCard>
   )
 }

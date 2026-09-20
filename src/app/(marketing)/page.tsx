@@ -10,7 +10,7 @@ const steps = [
   {
     n: "02",
     title: "Одна вакансия",
-    body: "Вставьте текст или URL. Сначала матрица совпадений: что закрыто, что слабо, что нужно уточнить.",
+    body: "Текст, URL или файл. Сначала матрица совпадений: что закрыто, что слабо, что нужно уточнить.",
   },
   {
     n: "03",
@@ -85,7 +85,9 @@ export default function LandingPage() {
             факты из вашего резюме под одну роль — не пишет карьеру заново.
           </p>
           <div className="flex flex-wrap items-center gap-3 pt-2">
-            <CtaLink href="/try">Адаптировать резюме</CtaLink>
+            <CtaLink href="/try" event="landing_cta_click">
+              Адаптировать резюме
+            </CtaLink>
             <CtaLink href="/login" variant="outline">
               Войти
             </CtaLink>
@@ -233,7 +235,9 @@ export default function LandingPage() {
             <p className="max-w-lg text-muted-foreground">
               Войдите за полминуты. Онбординг можно пройти позже — экспресс-тюнинг его не требует.
             </p>
-            <CtaLink href="/try">Начать</CtaLink>
+            <CtaLink href="/try" event="landing_cta_click">
+              Начать
+            </CtaLink>
           </div>
         </div>
       </section>

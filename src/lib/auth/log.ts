@@ -13,6 +13,7 @@ export type AuthLogEvent =
   | "identity_backfill"
   | "session"
   | "account_delete"
+  | "impersonate"
 
 export function logAuthEvent(
   event: AuthLogEvent,

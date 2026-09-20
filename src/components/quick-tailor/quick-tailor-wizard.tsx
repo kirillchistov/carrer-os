@@ -1,6 +1,6 @@
 "use client"
 
-import { useRef, useState, useTransition } from "react"
+import { useRef, useState, useTransition, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import {
@@ -37,6 +37,7 @@ import {
 import { creditLabel } from "@/lib/quick-tailor/summary"
 import { MatchMatrix } from "@/components/quick-tailor/match-matrix"
 import { ResumePreviewEditor } from "@/components/quick-tailor/resume-preview-editor"
+import { QuickTailorBridge } from "@/components/quick-tailor/quick-tailor-bridge"
 import { AiFeedbackButton } from "@/components/ai/ai-feedback-button"
 
 const STEPS = ["Резюме", "Вакансия", "Совпадение", "Уточнения", "Результат"] as const
@@ -49,15 +50,20 @@ function emptyJob(): QuickTailorJobInput {
 
 function CreditHint({ cost, balance }: { cost: number; balance: number | null }) {
   if (balance === null) {
-    return (
-      <p className="text-xs text-muted-foreground">Спишет {creditLabel(cost)}.</p>
-    )
+    return <p className="text-xs text-muted-foreground">Спишет {creditLabel(cost)}.</p>
   }
   if (balance < cost) {
     return (
-      <p className="text-sm text-destructive">
-        Нужно {creditLabel(cost)}, сейчас {balance}. Пополнить пока нельзя — смотрите Settings.
-      </p>
+      <div className="rounded-lg border border-destructive/40 bg-destructive/5 p-3 text-sm">
+        <p className="font-medium text-destructive">Недостаточно кредитов</p>
+        <p className="mt-1 text-muted-foreground">
+          Нужно {creditLabel(cost)}, сейчас {balance}. Пополнить в интерфейсе нельзя — баланс в
+          Настройках.
+        </p>
+        <Link href="/settings" className="mt-2 inline-block underline underline-offset-4">
+          Открыть Настройки
+        </Link>
+      </div>
     )
   }
   return (
@@ -98,8 +104,14 @@ export function QuickTailorWizard({ creditBalance }: { creditBalance: number | n
   const [editedLetter, setEditedLetter] = useState("")
   const [error, setError] = useState<string | null>(null)
   const [pendingKind, setPendingKind] = useState<PendingKind>(null)
+  const [localBalance, setLocalBalance] = useState(creditBalance)
   const [pending, startTransition] = useTransition()
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const vacancyFileRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    setLocalBalance(creditBalance)
+  }, [creditBalance])
 
   const busy = pending || pendingKind !== null
 
@@ -118,6 +130,20 @@ export function QuickTailorWizard({ creditBalance }: { creditBalance: number | n
       if (extracted.ok) setResumeText(extracted.text)
       else setError(extracted.message)
       if (fileInputRef.current) fileInputRef.current.value = ""
+      setPendingKind(null)
+    })
+  }
+
+  function handleVacancyFile(file: File) {
+    setError(null)
+    const formData = new FormData()
+    formData.set("file", file)
+    setPendingKind("extract")
+    startTransition(async () => {
+      const extracted = await extractResumeTextFromFile(formData)
+      if (extracted.ok) setJob((prev) => ({ ...prev, text: extracted.text }))
+      else setError(extracted.message)
+      if (vacancyFileRef.current) vacancyFileRef.current.value = ""
       setPendingKind(null)
     })
   }
@@ -152,6 +178,7 @@ export function QuickTailorWizard({ creditBalance }: { creditBalance: number | n
       }
       setMatch(analyzed.match)
       setMatchAiRunId(analyzed.aiRunId)
+      setLocalBalance((b) => (b === null ? null : b - analyzed.creditCost))
       const initial: Record<string, string> = {}
       for (const q of analyzed.match.questions) initial[q.id] = ""
       setAnswers(initial)
@@ -183,6 +210,7 @@ export function QuickTailorWizard({ creditBalance }: { creditBalance: number | n
       setResult(generated)
       setEditedResume(generated.resume)
       setEditedLetter(generated.coverLetter)
+      setLocalBalance((b) => (b === null ? null : b - QUICK_TAILOR_GENERATE_CREDIT_COST))
       setPendingKind(null)
       setStep(4)
       router.refresh()
@@ -264,10 +292,13 @@ export function QuickTailorWizard({ creditBalance }: { creditBalance: number | n
       </div>
 
       {status && (
-        <p className="flex items-center gap-2 text-sm text-muted-foreground">
-          <LoaderCircle className="size-4 animate-spin" aria-hidden />
-          {status}
-        </p>
+        <div className="flex items-center gap-3 rounded-lg border bg-muted/40 px-4 py-3 text-sm">
+          <LoaderCircle className="size-4 shrink-0 animate-spin" aria-hidden />
+          <div>
+            <p className="font-medium">{status}</p>
+            <p className="text-muted-foreground">Это занимает обычно 10–30 секунд, кредиты уже зарезервированы.</p>
+          </div>
+        </div>
       )}
       {error && <p className="text-sm text-destructive">{error}</p>}
 
@@ -350,6 +381,7 @@ export function QuickTailorWizard({ creditBalance }: { creditBalance: number | n
               <TabsList>
                 <TabsTrigger value="paste">Вставить текст</TabsTrigger>
                 <TabsTrigger value="url">Ссылка</TabsTrigger>
+                <TabsTrigger value="file">Файл</TabsTrigger>
               </TabsList>
               <TabsContent value="paste" className="pt-4">
                 <Textarea
@@ -380,15 +412,33 @@ export function QuickTailorWizard({ creditBalance }: { creditBalance: number | n
                   </p>
                 )}
               </TabsContent>
+              <TabsContent value="file" className="flex flex-col gap-3 pt-4">
+                <input
+                  ref={vacancyFileRef}
+                  type="file"
+                  accept=".docx,.pdf,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                  disabled={busy}
+                  onChange={(e) => {
+                    const file = e.target.files?.[0]
+                    if (file) handleVacancyFile(file)
+                  }}
+                  className="text-sm"
+                />
+                <p className="text-xs text-muted-foreground">.docx или .pdf с текстом вакансии.</p>
+              </TabsContent>
             </Tabs>
-            <CreditHint cost={QUICK_TAILOR_MATCH_CREDIT_COST} balance={creditBalance} />
+            <CreditHint cost={QUICK_TAILOR_MATCH_CREDIT_COST} balance={localBalance} />
             <div className="flex gap-2">
               <Button variant="outline" onClick={() => go(0)}>
                 <ArrowLeft className="size-4" />
                 Назад
               </Button>
               <Button
-                disabled={busy || job.text.trim().length < MIN_JOB_CHARS}
+                disabled={
+                  busy ||
+                  job.text.trim().length < MIN_JOB_CHARS ||
+                  (localBalance !== null && localBalance < QUICK_TAILOR_MATCH_CREDIT_COST)
+                }
                 onClick={handleAnalyze}
               >
                 <Sparkles className="size-4" />
@@ -402,7 +452,7 @@ export function QuickTailorWizard({ creditBalance }: { creditBalance: number | n
       {step === 2 && match && (
         <div className="flex flex-col gap-4">
           <MatchMatrix match={match} aiRunId={matchAiRunId} />
-          <CreditHint cost={QUICK_TAILOR_GENERATE_CREDIT_COST} balance={creditBalance} />
+          <CreditHint cost={QUICK_TAILOR_GENERATE_CREDIT_COST} balance={localBalance} />
           <div className="flex flex-wrap gap-2">
             <Button variant="outline" onClick={() => go(1)}>
               <ArrowLeft className="size-4" />
@@ -444,13 +494,16 @@ export function QuickTailorWizard({ creditBalance }: { creditBalance: number | n
                 </div>
               ))
             )}
-            <CreditHint cost={QUICK_TAILOR_GENERATE_CREDIT_COST} balance={creditBalance} />
+            <CreditHint cost={QUICK_TAILOR_GENERATE_CREDIT_COST} balance={localBalance} />
             <div className="flex flex-wrap gap-2">
               <Button variant="outline" onClick={() => go(2)}>
                 <ArrowLeft className="size-4" />
                 Назад
               </Button>
-              <Button disabled={busy} onClick={handleGenerate}>
+              <Button
+                disabled={busy || (localBalance !== null && localBalance < QUICK_TAILOR_GENERATE_CREDIT_COST)}
+                onClick={handleGenerate}
+              >
                 <Sparkles className="size-4" />
                 Собрать резюме и письмо
               </Button>
@@ -530,36 +583,14 @@ export function QuickTailorWizard({ creditBalance }: { creditBalance: number | n
             </Button>
           </div>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Дальше в Career Evidence OS</CardTitle>
-              <CardDescription>
-                Сохранили вакансию, версию резюме и черновик письма. Онбординг для этого не нужен.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="flex flex-wrap gap-2">
-              <Button
-                variant="outline"
-                nativeButton={false}
-                render={<Link href={`/opportunities/${result.opportunityId}`} />}
-              >
-                Открыть возможность
-              </Button>
-              <Button
-                variant="outline"
-                nativeButton={false}
-                render={<Link href={`/opportunities/${result.opportunityId}/fit`} />}
-              >
-                Fit-отчёт
-              </Button>
-              <Button variant="outline" nativeButton={false} render={<Link href="/pipeline" />}>
-                Pipeline
-              </Button>
-              <Button variant="outline" nativeButton={false} render={<Link href="/evidence" />}>
-                Evidence Bank
-              </Button>
-            </CardContent>
-          </Card>
+          <QuickTailorBridge
+            title={result.title}
+            companyName={result.companyName}
+            opportunityId={result.opportunityId}
+            resumeId={result.resumeId}
+            resumeVersionId={result.resumeVersionId}
+            match={match}
+          />
 
           <div className="flex flex-wrap gap-2">
             <Button variant="secondary" onClick={resetToVacancy}>

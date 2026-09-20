@@ -12,6 +12,7 @@ export const PROTECTED_PREFIXES = [
   "/quick-tailor",
   "/interviews",
   "/resources",
+  "/admin",
 ] as const
 
 export function isProtectedPath(pathname: string): boolean {

@@ -16,10 +16,24 @@ export type ProductEvent =
   | "interview_note_created"
   | "quick_tailor_generated"
   | "quick_tailor_match_generated"
+  | "landing_cta_click"
+  | "try_started"
+  | "try_generated"
+  | "signup_from_try"
 
 type EventProperties = Record<string, string | number | boolean | null | undefined>
 
-export function track(event: ProductEvent, userId: string, properties?: EventProperties) {
+const ANON_ID = "anon"
+
+function posthogKey() {
+  return process.env.NEXT_PUBLIC_POSTHOG_KEY
+}
+
+function posthogHost() {
+  return process.env.NEXT_PUBLIC_POSTHOG_HOST || "https://eu.i.posthog.com"
+}
+
+export function track(event: ProductEvent, userId: string = ANON_ID, properties?: EventProperties) {
   const payload = {
     type: "product_event",
     event,
@@ -28,7 +42,16 @@ export function track(event: ProductEvent, userId: string, properties?: EventPro
     timestamp: new Date().toISOString(),
   }
 
-  // Swap for a real analytics sink (e.g. PostHog, Amplitude) once one is configured —
-  // this structured log line is the whole "no-op until keys present" implementation.
   console.log(JSON.stringify(payload))
+
+  const key = posthogKey()
+  if (!key) return
+
+  void import("posthog-node")
+    .then(({ PostHog }) => {
+      const client = new PostHog(key, { host: posthogHost() })
+      client.capture({ distinctId: userId, event, properties: properties ?? {} })
+      return client.shutdown()
+    })
+    .catch(() => undefined)
 }

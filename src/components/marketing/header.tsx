@@ -35,7 +35,7 @@ export function MarketingHeader() {
           <Link href="/login" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
             Войти
           </Link>
-          <CtaLink href="/try" size="sm" className="px-4">
+          <CtaLink href="/try" size="sm" className="px-4" event="landing_cta_click">
             Начать
           </CtaLink>
         </div>
@@ -67,7 +67,7 @@ export function MarketingHeader() {
             <Link href="/login" className="text-muted-foreground" onClick={() => setOpen(false)}>
               Войти
             </Link>
-            <CtaLink href="/try" className="mt-1 w-full" onClick={() => setOpen(false)}>
+            <CtaLink href="/try" className="mt-1 w-full" event="landing_cta_click" onClick={() => setOpen(false)}>
               Начать
             </CtaLink>
           </nav>

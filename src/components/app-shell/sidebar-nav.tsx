@@ -13,6 +13,7 @@ import {
   BookOpen,
   Settings,
   Sparkles,
+  Shield,
 } from "lucide-react"
 import { cn } from "cn"
 
@@ -29,7 +30,7 @@ const NAV_ITEMS = [
   { href: "/settings", label: "Настройки", icon: Settings },
 ] as const
 
-export function SidebarNav({ className }: { className?: string }) {
+export function SidebarNav({ className, showAdmin }: { className?: string; showAdmin?: boolean }) {
   const pathname = usePathname()
 
   return (
@@ -52,6 +53,20 @@ export function SidebarNav({ className }: { className?: string }) {
           </Link>
         )
       })}
+      {showAdmin ? (
+        <Link
+          href="/admin"
+          className={cn(
+            "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
+            pathname === "/admin" || pathname.startsWith("/admin/")
+              ? "bg-primary/10 text-primary"
+              : "text-muted-foreground hover:bg-secondary/60 hover:text-foreground"
+          )}
+        >
+          <Shield className="size-4 shrink-0" aria-hidden />
+          Админка
+        </Link>
+      ) : null}
     </nav>
   )
 }

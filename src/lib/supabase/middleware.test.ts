@@ -32,6 +32,7 @@ describe("isProtectedPath", () => {
     "/quick-tailor/",
     "/interviews/abc",
     "/resources",
+    "/admin",
   ])("treats %s as protected", (path) => {
     expect(isProtectedPath(path)).toBe(true)
   })

@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation"
 import { prisma } from "@/lib/db/prisma"
-import { requireCurrentUser } from "@/lib/auth/session"
+import { requireSession, requireCurrentUser } from "@/lib/auth/session"
 import { createSupabaseAdminClient } from "@/lib/supabase/admin"
 import { createSupabaseServerClient } from "@/lib/supabase/server"
 import { env } from "@/lib/env"
@@ -43,7 +43,11 @@ export async function listMyAiFeedbackReports() {
 }
 
 export async function deleteMyAccount(): Promise<{ error: string | null }> {
-  const user = await requireCurrentUser()
+  const ctx = await requireSession()
+  if (ctx.impersonating) {
+    return { error: "Нельзя удалить аккаунт, пока вы смотрите его как админ." }
+  }
+  const user = ctx.user
   if (!env.SUPABASE_SERVICE_ROLE_KEY) {
     return { error: "Удаление из интерфейса недоступно. Напишите нам с вашего email." }
   }

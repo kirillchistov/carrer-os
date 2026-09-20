@@ -28,6 +28,12 @@ enum Locale {
   @@schema("career_os")
 }
 
+enum UserRole {
+  user
+  admin
+  @@schema("career_os")
+}
+
 enum EmploymentFormat {
   permanent
   contract
@@ -288,6 +294,7 @@ model User {
   email       String   @unique
   displayName String?
   locale      Locale   @default(ru)
+  role        UserRole @default(user)
   onboardingCompletedAt DateTime?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt

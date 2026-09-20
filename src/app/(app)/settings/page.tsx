@@ -70,8 +70,8 @@ export default async function SettingsPage() {
         <CardHeader>
           <CardTitle className="text-base">AI-кредиты</CardTitle>
           <CardDescription>
-            Каждое обращение к AI (разбор опыта, Fit Report, предложения по резюме, письма)
-            списывает кредиты — это не безлимитный доступ.
+            Каждое обращение к AI списывает кредиты. Пополнить самостоятельно в продукте нельзя —
+            если баланс кончился, напишите нам.
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">

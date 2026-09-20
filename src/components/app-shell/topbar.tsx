@@ -10,7 +10,15 @@ import { Badge } from "@/components/ui/badge"
 import { Sparkles } from "lucide-react"
 import Link from "next/link"
 
-export function Topbar({ userEmail, creditBalance }: { userEmail: string; creditBalance: number | null }) {
+export function Topbar({
+  userEmail,
+  creditBalance,
+  showAdmin,
+}: {
+  userEmail: string
+  creditBalance: number | null
+  showAdmin?: boolean
+}) {
   const [open, setOpen] = useState(false)
 
   return (
@@ -27,7 +35,7 @@ export function Topbar({ userEmail, creditBalance }: { userEmail: string; credit
             <SheetTitle className="mb-4 font-heading text-sm font-semibold text-sidebar-foreground">
               Career Evidence OS
             </SheetTitle>
-            <SidebarNav />
+            <SidebarNav showAdmin={showAdmin} />
           </SheetContent>
         </Sheet>
         <span className="font-heading text-sm font-semibold md:hidden">Career Evidence OS</span>

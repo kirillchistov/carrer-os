@@ -223,6 +223,7 @@ export async function runQuickTailor(input: {
   ])
 
   track("quick_tailor_generated", user.id, { opportunityId: opportunity.id, resumeVersionId: resumeVersion.id })
+  track("try_generated", user.id, { opportunityId: opportunity.id })
   revalidatePath("/opportunities")
   revalidatePath("/resumes")
   revalidatePath("/pipeline")

@@ -6,6 +6,9 @@ import { createSupabaseServerClient } from "@/lib/supabase/server"
 import { env } from "@/lib/env"
 import { authCallbackUrl, safeNextPath } from "@/lib/auth/safe-next"
 import { logAuthEvent } from "@/lib/auth/log"
+import { cookies } from "next/headers"
+import { IMPERSONATE_COOKIE } from "@/lib/auth/impersonation"
+import { track } from "@/lib/analytics/track"
 
 const credentialsSchema = z.object({
   email: z.string().email("Введите корректный email"),
@@ -72,10 +75,16 @@ export async function signUpWithPassword(
 
   if (data.session) {
     logAuthEvent("signup", { ok: true, reason: "session" })
+    if (afterConfirm === "/quick-tailor") {
+      track("signup_from_try", data.user?.id ?? "anon")
+    }
     redirect(afterConfirm)
   }
 
   logAuthEvent("signup", { ok: true, reason: "needs_confirmation" })
+  if (afterConfirm === "/quick-tailor") {
+    track("signup_from_try", data.user?.id ?? "anon")
+  }
   return { error: null, checkEmail: true }
 }
 
@@ -149,6 +158,8 @@ export async function updatePassword(
 export async function signOut() {
   const supabase = await createSupabaseServerClient()
   await supabase.auth.signOut()
+  const jar = await cookies()
+  jar.delete(IMPERSONATE_COOKIE)
   logAuthEvent("sign_out", { ok: true })
   redirect("/login")
 }
